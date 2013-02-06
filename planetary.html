@@ -23,18 +23,16 @@ if (typeof jQuery == 'undefined')
 		
 var g_levels = {
 	level1: {
-		planets: {	'A': { name: 'A', x: 100, y: 100, r: 20, color: '#ff00ff' },
-					'B': { name: 'B', x: 200, y: 300, r: 17, color: '#009966' },
-					'C': { name: 'C', x: 500, y: 400, r: 25, color: '#ff9999' },
-					'D': { name: 'D', x: 700, y: 400, r: 18, color: '#960596' },
-					'E': { name: 'E', x: 800, y: 300, r: 19, color: '#4598DD' },
-					'F': { name: 'F', x: 400, y: 600, r: 22, color: '#9845DD' },
-					'G': { name: 'G', x: 600, y: 200, r: 24, color: '#989233' },
+		planets: {	'A': { name: 'A', x: 200, y: 200, r: 20, color: '#ff00ff' },
+					'B': { name: 'B', x: 300, y: 400, r: 22, color: '#009966' }
 		},
-		routes: [ 'A_B', 'B_C', 'C_D', 'D_E', 'C_F', 'C_G' ],
+		routes: [ 'A_B' ],
 		players: [
 			{ team: 'team1', location: 'A' },
-			{ team: 'team2', location: 'B' },
+			{ team: 'team2', location: undefined }
+		],
+		ships: [
+			{ team: 'team2', type: 'fighter', location: 'B' }
 		]
 	},
 	level2: {
@@ -177,6 +175,10 @@ $(document).ready(function() {
 	for (var i=0;i<level.players.length;i++) {
 		initTeam(level.players[i].team, level.players[i].location);
 	}
+	for (var i=0;i<level.ships.length;i++) {
+		var planet = g_game.planets[level.ships[i].location];
+		g_game.ships.push(new Ship(level.ships[i].type, level.ships[i].team, planet.x, planet.y, 3, planet.name));
+	}
 
 	doGameLoop(0);
 	
@@ -184,7 +186,9 @@ $(document).ready(function() {
 
 var initTeam = function(team, home) {
 	g_game.teams[team] = { routePoints: [] };
-	g_game.buildings[home] = new Factory(home, team);
+	if (home) {
+		g_game.buildings[home] = new Factory(home, team);
+	}
 	if (team != 'team1') {
 		g_game.teams[team].player = new PlayerAI(team);
 	}
@@ -527,7 +531,9 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	var self = this;
 	self.type = myType;
 	self.home = start;
-	g_game.buildings[self.home].numShips += 1;
+	if (g_game.buildings[self.home]) {
+		g_game.buildings[self.home].numShips += 1;
+	}
 	self.orbitting = start;
 	g_game.planets[self.orbitting].addOrbitter(self);
 	self.destination = null;
