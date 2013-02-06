@@ -1,0 +1,12 @@
+planets:
+--------
+repair
+money
+construction
+
+songs:
+-------
+http://opengameart.org/content/railjet-long-seamless-loop
+http://opengameart.org/content/cosmo-blast
+http://opengameart.org/content/clearside-assimilator
+http://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc
