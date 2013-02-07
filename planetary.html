@@ -24,7 +24,7 @@ if (typeof jQuery == 'undefined')
 		
 		
 var g_levels = {
-	level1: {
+	'1': {
 		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
 					'B': { name: 'B', x: 300, y: 400, r: 24, color: '#009966' }
 		},
@@ -42,7 +42,7 @@ var g_levels = {
 							tx: 250, ty: 120
 		}
 	},
-	level2: {
+	'2': {
 		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
 					'B': { name: 'B', x: 300, y: 400, r: 24, color: '#009966' }
 		},
@@ -62,7 +62,7 @@ var g_levels = {
 							tx: 250, ty: 120
 		}
 	},
-	level3: {
+	'3': {
 		planets: {	'A': { name: 'A', x: 100, y: 100, r: 20, color: '#ff00ff' },
 					'B': { name: 'B', x: 200, y: 300, r: 17, color: '#009966' },
 					'C': { name: 'C', x: 500, y: 400, r: 25, color: '#ff9999' },
@@ -76,7 +76,8 @@ var g_levels = {
 			{ team: 'team1', location: 'C' },
 			{ team: 'team2', location: 'A' },
 		],
-		ships: []
+		ships: [],
+		buildings: []
 	}
 };
 		
@@ -140,8 +141,7 @@ $(document).ready(function() {
 	if (!localStorage.planetary_level) {
 		localStorage.planetary_level = 1;
 	}
-	g_game.level = 'level' + localStorage.planetary_level;
-	console.log(g_game.level);
+	g_game.level = g_levels[localStorage.planetary_level];
 	
 	$('#gameHolder').width($(document).width()-32).height($(document).height()-32);
 	g_game.raphPaper = Raphael("gameHolder");
@@ -190,9 +190,9 @@ $(document).ready(function() {
 
 	g_game.gameMessage = g_game.raphPaper.set([
 		g_game.raphPaper.text(0, 0, 'The message').attr(g_defs.fontAttribs).attr({ 'font-size': 32 }),
-		g_game.raphPaper.text(0, 0, '<- prev lvl').attr(g_defs.fontAttribs).attr({ 'font-size': 24,  href: 'javascript: console.log("prev")' }),
-		g_game.raphPaper.text(0, 0, '@ restart').attr(g_defs.fontAttribs).attr({ 'font-size': 24 }),
-		g_game.raphPaper.text(0, 0, 'next lvl ->').attr(g_defs.fontAttribs).attr({ 'font-size': 24,  href: 'javascript: location.href = location.href' })
+		g_game.raphPaper.text(0, 0, '<- prev lvl').attr(g_defs.fontAttribs).attr({ 'font-size': 24,  href: 'javascript: moveLevel(-1)' }),
+		g_game.raphPaper.text(0, 0, '@ restart').attr(g_defs.fontAttribs).attr({ 'font-size': 24,  href: 'javascript: location.href = location.href' }),
+		g_game.raphPaper.text(0, 0, 'next lvl ->').attr(g_defs.fontAttribs).attr({ 'font-size': 24,  href: 'javascript: moveLevel(1)' })
 	]).hide();
 	g_game.gameMessage.game = { show: false, positions: [[0, -40], [-200, 60], [0, 60], [200, 60]] };
 
@@ -201,51 +201,57 @@ $(document).ready(function() {
 	g_game.routeSelector.game = { isActive: false, points: [] };
 
 	// load level
-	var level = undefined;
-	level = g_levels['level' + localStorage.planetary_level];
-	while (!level) {
-		localStorage.planetary_level = parseInt(localStorage.planetary_level, 10) - 1;
+	while (!g_game.level) {
+		localStorage.planetary_level = Math.max(1, parseInt(localStorage.planetary_level, 10) - 1);
 		console.log('down to ' + localStorage.planetary_level);
-		level = g_levels['level' + localStorage.planetary_level];
+		g_game.level = g_levels[localStorage.planetary_level];
 	}
-	for (var name in level.planets) {
-		g_game.planets[name] = new Planet(name, level.planets[name].x, level.planets[name].y, level.planets[name].r, level.planets[name].color);
+	for (var name in g_game.level.planets) {
+		g_game.planets[name] = new Planet(name, g_game.level.planets[name].x, g_game.level.planets[name].y, 
+											g_game.level.planets[name].r, g_game.level.planets[name].color);
 	}
-	for (var i=0;i<level.routes.length;i++) {
-		var route = level.routes[i].split('_');
-		g_game.routes[level.routes[i]] = new Route(route[0], route[1]);
+	for (var i=0;i<g_game.level.routes.length;i++) {
+		var route = g_game.level.routes[i].split('_');
+		g_game.routes[g_game.level.routes[i]] = new Route(route[0], route[1]);
 	}
-	for (var i=0;i<level.players.length;i++) {
-		initTeam(level.players[i].team, level.players[i].location);
+	for (var i=0;i<g_game.level.players.length;i++) {
+		initTeam(g_game.level.players[i].team, g_game.level.players[i].location);
 	}
-	for (var i=0;i<level.ships.length;i++) {
-		var planet = g_game.planets[level.ships[i].location];
-		g_game.ships.push(new Ship(level.ships[i].type, level.ships[i].team, planet.x, planet.y, 3, planet.name));
+	for (var i=0;i<g_game.level.ships.length;i++) {
+		var planet = g_game.planets[g_game.level.ships[i].location];
+		g_game.ships.push(new Ship(g_game.level.ships[i].type, g_game.level.ships[i].team, planet.x, planet.y, 3, planet.name));
 	}
-	for (var i=0;i<level.buildings.length;i++) {
-		g_game.buildings[level.buildings[i].location] = new Building(level.buildings[i].type, level.buildings[i].location, level.buildings[i].team);
+	for (var i=0;i<g_game.level.buildings.length;i++) {
+		g_game.buildings[g_game.level.buildings[i].location] = new Building(	g_game.level.buildings[i].type, 
+																				g_game.level.buildings[i].location, 
+																				g_game.level.buildings[i].team);
 	}
-	if (level.tutorial_image) {
+	if (g_game.level.tutorial_image) {
 		g_game.tutorial_set = g_game.raphPaper.set([
-			g_game.raphPaper.text(0, 0, level.tutorial_image.text).attr(g_defs.fontAttribs).attr( { 'font-size': 24 } ),
-			g_game.raphPaper.rect(level.tutorial_image.x, level.tutorial_image.y, level.tutorial_image.w, level.tutorial_image.h, 12)
+			g_game.raphPaper.text(0, 0, g_game.level.tutorial_image.text).attr(g_defs.fontAttribs).attr( { 'font-size': 24 } ),
+			g_game.raphPaper.rect(g_game.level.tutorial_image.x, g_game.level.tutorial_image.y, g_game.level.tutorial_image.w, g_game.level.tutorial_image.h, 12)
 				.attr({ fill: '#228DFF', opacity: 0.3 }),
-			g_game.raphPaper.rect(level.tutorial_image.x, level.tutorial_image.y, level.tutorial_image.w, level.tutorial_image.h, 12)
+			g_game.raphPaper.rect(g_game.level.tutorial_image.x, g_game.level.tutorial_image.y, g_game.level.tutorial_image.w, g_game.level.tutorial_image.h, 12)
 				.attr({ stroke: '#eeeeee', opacity: 1 }),
-			g_game.raphPaper.image('./images/tutorial/' + level.tutorial_image.name, 
-								level.tutorial_image.x,
-								level.tutorial_image.y,
-								level.tutorial_image.w,
-								level.tutorial_image.h)
+			g_game.raphPaper.image('./images/tutorial/' + g_game.level.tutorial_image.name, 
+								g_game.level.tutorial_image.x,
+								g_game.level.tutorial_image.y,
+								g_game.level.tutorial_image.w,
+								g_game.level.tutorial_image.h)
 								
 		]).toBack();
-		g_game.tutorial_set[0].game = { tx: level.tutorial_image.tx, ty: level.tutorial_image.ty };
+		g_game.tutorial_set[0].game = { tx: g_game.level.tutorial_image.tx, ty: g_game.level.tutorial_image.ty };
 	}
 
 	positionGameText();
 	doGameLoop(0);
 	
 });
+
+var moveLevel = function(amt) {
+	localStorage.planetary_level = parseInt(localStorage.planetary_level, 10) + amt;
+	location.href = location.href;
+}
 
 var initTeam = function(team, home) {
 	g_game.teams[team] = { routePoints: [] };
@@ -536,8 +542,8 @@ var Planet = function(name, myX, myY, myR, myColor) {
 				var lastPoint = g_game.teams.team1.routePoints[g_game.teams.team1.routePoints.length-1];
 				if (lastPoint != self.name) { 
 					var bFound = false;
-					for (var i=0;!bFound && i<g_levels[g_game.level].routes.length;i++) {
-						if (g_levels[g_game.level].routes[i].indexOf(lastPoint) != -1 && g_levels[g_game.level].routes[i].indexOf(self.name) != -1) {
+					for (var i=0;!bFound && i<g_game.level.routes.length;i++) {
+						if (g_game.level.routes[i].indexOf(lastPoint) != -1 && g_game.level.routes[i].indexOf(self.name) != -1) {
 							bFound = true;
 						}
 					}
@@ -832,7 +838,7 @@ var doGameLoop = function(frames) {
 			g_game.gameMessage[1].hide();
 		}
 		
-		localStorage.planetary_level = parseInt(localStorage.planetary_level, 10) + 1;
+		//localStorage.planetary_level = parseInt(localStorage.planetary_level, 10) + 1;
 		
 		return;
 	}
