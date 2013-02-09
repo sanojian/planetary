@@ -49,7 +49,6 @@ var g_levels = {
 		routes: [ 'A_B' ],
 		players: [
 			{ team: 'team1', location: 'A' },
-			{ team: 'team2', location: undefined }
 		],
 		ships: [
 			{ team: 'team2', type: 'fighter', location: 'B' }
@@ -63,18 +62,57 @@ var g_levels = {
 		}
 	},
 	'3': {
-		planets: {	'A': { name: 'A', x: 100, y: 100, r: 20, color: '#ff00ff' },
-					'B': { name: 'B', x: 200, y: 300, r: 17, color: '#009966' },
-					'C': { name: 'C', x: 500, y: 400, r: 25, color: '#ff9999' },
-					'D': { name: 'D', x: 700, y: 400, r: 18, color: '#960596' },
-					'E': { name: 'E', x: 800, y: 300, r: 19, color: '#4598DD' },
-					'F': { name: 'F', x: 400, y: 600, r: 22, color: '#9845DD' },
+		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
+					'B': { name: 'B', x: 300, y: 400, r: 24, color: '#009966' },
+					'C': { name: 'C', x: 500, y: 400, r: 28, color: '#ff9999' }
+		},
+		routes: [ 'A_B', 'B_C' ],
+		players: [
+			{ team: 'team1', location: 'A' }
+		],
+		ships: [],
+		buildings: [
+			{ team: 'team2', type: 'factory', location: 'C' }
+		],
+		tutorial_image: { 	name: 'level3.png', x: 400, y: 200, w: 400, h: 300,
+							text: 'LEVEL 3:\n \nBuild a factory and\ntake over another\nplanet. Then\nattack!',
+							tx: 250, ty: 120
+		}
+	},
+	'4': {
+		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
+					'B': { name: 'B', x: 300, y: 400, r: 24, color: '#009966' },
+					'C': { name: 'C', x: 500, y: 400, r: 28, color: '#ff9999' },
+					'D': { name: 'D', x: 700, y: 400, r: 22, color: '#960596' }
+		},
+		routes: [ 'A_B', 'B_C', 'C_D' ],
+		players: [
+			{ team: 'team1', location: 'A' },
+			{ team: 'team2', location: 'D' }
+		],
+		ships: [],
+		buildings: [
+		],
+		/*tutorial_image: { 	name: 'level3.png', x: 400, y: 200, w: 400, h: 300,
+							text: 'LEVEL 4:\n \nBuild a factory and\ntake over another\nplanet. Then\nattack!',
+							tx: 250, ty: 120
+		}*/
+	},
+	'5': {
+		planets: {	'A': { name: 'A', x: 100, y: 100, r: 26, color: '#ff00ff' },
+					'B': { name: 'B', x: 200, y: 300, r: 24, color: '#009966' },
+					'C': { name: 'C', x: 500, y: 400, r: 28, color: '#ff9999' },
+					'D': { name: 'D', x: 700, y: 400, r: 22, color: '#960596' },
+					'E': { name: 'E', x: 800, y: 300, r: 23, color: '#4598DD' },
+					'F': { name: 'F', x: 400, y: 600, r: 30, color: '#9845DD' },
 					'G': { name: 'G', x: 600, y: 200, r: 24, color: '#989233' },
 		},
 		routes: [ 'A_B', 'B_C', 'C_D', 'D_E', 'C_F', 'C_G' ],
 		players: [
 			{ team: 'team1', location: 'C' },
 			{ team: 'team2', location: 'A' },
+			{ team: 'team3', location: 'G' },
+			{ team: 'team4', location: 'E' }
 		],
 		ships: [],
 		buildings: []
@@ -93,17 +131,26 @@ var g_defs = {
 					fighter: {
 						damage: 0.5,
 						hits: 2,
-						speed: 3
+						speed: 3,
+						size: 5
 					},
 					bomber: {
 						damage: 0.2,
 						hits: 2,
-						speed: 2
+						speed: 2,
+						size: 5
 					},
 					factory: {
 						damage: 0,
 						hits: 2,
-						speed: 1.5
+						speed: 1.5,
+						size: 5
+					},
+					gun: {
+						damage: 0,
+						hits: 2,
+						speed: 2,
+						size: 8
 					}
 				
 				},
@@ -133,6 +180,9 @@ $(document).ready(function() {
  	g_game.sounds.explosion = new buzz.sound( "./audio/fx/explosion", {
 		formats: [ "wav" ]
 	});
+ 	g_game.sounds.gun = new buzz.sound( "./audio/fx/gun", {
+		formats: [ "wav" ]
+	});
  	g_game.music.song1 = new buzz.sound( "//dl.dropbox.com/u/102070389/games/planetary/Clearside - Assimilator", {
 		formats: [ "mp3" ],
 	});
@@ -151,9 +201,11 @@ $(document).ready(function() {
 	g_game.shipSelector.push(drawShip('fighter', 6, g_defs.teams['team1'].color, 0, -38));
 	g_game.shipSelector.push(drawShip('bomber', 6, g_defs.teams['team1'].color, 36, 0));
 	g_game.shipSelector.push(drawShip('factory', 6, g_defs.teams['team1'].color, 0, 38));
+	g_game.shipSelector.push(drawShip('gun', 8, g_defs.teams['team1'].color, -36, 0));
 	g_game.shipSelector[2].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[2]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'fighter'; });
 	g_game.shipSelector[3].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[3]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'bomber'; });
 	g_game.shipSelector[4].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[4]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'factory'; });
+	g_game.shipSelector[5].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[5]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'gun'; });
 	g_game.shipSelector.game = {
 		hoverSelect: function(theSet) {
 			var bbox = theSet.getBBox(true);
@@ -333,6 +385,10 @@ var drawShip = function(type, r, color, offsetX, offsetY) {
 		ship.push(g_game.raphPaper.rect(offsetX - 2, offsetY - 10, 8, 14).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		ship.push(g_game.raphPaper.rect(offsetX - 8, offsetY - 4, 8, 8).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 	}
+	else if (type == 'gun') {
+		ship.push(g_game.raphPaper.circle(offsetX, offsetY, r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.rect(offsetX - r/4, offsetY - r/4, 2*r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
+	}
 	
 	return ship;
 };
@@ -351,6 +407,7 @@ var PlayerAI = function(myTeam) {
 			// look for my buildings
 			if (g_game.buildings[i] && g_game.buildings[i].team == self.team) {
 				g_game.teams[self.team].routePoints = [i];
+				var bDecision = false;
 				for (var j in g_game.routes) {
 					if (g_game.routes[j].startPlanet == i || g_game.routes[j].endPlanet == i) {
 					
@@ -365,7 +422,7 @@ var PlayerAI = function(myTeam) {
 						else if (g_game.buildings[planet].team != self.team) {
 							g_game.buildings[i].buildType = 'bomber';
 							g_game.teams[self.team].routePoints.push(planet);
-							break;
+							break destination;
 						
 						}
 					}
@@ -395,8 +452,10 @@ var Building = function(myType, planetName, myTeam) {
 	self.hits = 2;
 	var builtByMe = 0;
 	self.numShips = 0;
+	var gunFireTime = 20;
+	self.damage = 1;
 	
-	self.image = drawShip(self.type, 5, g_defs.teams[self.team].color, self.planet.x, self.planet.y);
+	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x, self.planet.y);
 	var bbox = self.image.getBBox();
 	
 	if (self.type == 'factory') {
@@ -471,6 +530,36 @@ var Building = function(myType, planetName, myTeam) {
 			if (Math.floor(w) != Math.floor(newW)) {
 				self.progress.attr({ width: newW });
 			}
+		}
+		else if (self.type == 'gun') {
+			var target = null;
+			for (var i=0;i<self.planet.orbittingShips.length;i++) {
+				if (self.planet.orbittingShips[i].team != self.team) {
+					target = self.planet.orbittingShips[i];
+					break;
+				}
+			}
+			
+			if (target != null) {
+				var dx = self.planet.x - target.x;
+				var dy = self.planet.y - target.y;
+				var angle = Math.atan2(-dy, -dx);
+				// get bbox of set so we can rotate around center
+				self.image.transform('r' + (angle * 180 / Math.PI) + ',' + self.planet.x + ',' + self.planet.y);
+				if (frames > gunFireTime) {
+					var shot = g_game.raphPaper.path('M' + self.planet.x + ' ' + self.planet.y + 'L' + target.x + ' ' + target.y)
+						.attr({ stroke: '#55ff55', 'stroke-width': 2 });
+					setTimeout(function() { shot.remove(); }, 100);
+					target.takeDamage(self.damage);
+
+					if (self.visible) {
+						g_game.sounds.gun.play();
+					}	
+					
+					frames = 0;
+				}
+			}
+		
 		}
 	};
 
@@ -625,7 +714,7 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	
 	self.redraw = function() {
 		if (!self.image)
-			self.image = drawShip(self.type, 5, g_defs.teams[myTeam].color, 0, 0);
+			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, 0, 0);
 
 		self.image.attr({ 'stroke-width': self.hits });
 		if (!g_game.planets[self.orbitting].visible) {
@@ -667,6 +756,10 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	};
 	
 	self.setDestination = function() {
+		// for turorial, ship may not have an actual team
+		if (!g_game.teams[self.team])
+			return;
+	
 		if (self.orbitting) {
 			self.clearDestination();
 			for (var i=0;i<g_game.teams[self.team].routePoints.length-1;i++) {
@@ -726,9 +819,9 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			orbitDistanceTravelled = 0;
 		}
 		if (self.orbitting) {
-			if (self.type == 'factory' && !g_game.buildings[self.orbitting]) {
+			if ((self.type == 'gun' || self.type == 'factory') && !g_game.buildings[self.orbitting]) {
 				// I am orbitting an empty planet, build a factory!
-				g_game.buildings[self.orbitting] = new Building('factory', self.orbitting, self.team);
+				g_game.buildings[self.orbitting] = new Building(self.type, self.orbitting, self.team);
 				return self.destroy();
 			}
 			orbitDistanceTravelled = (orbitDistanceTravelled + self.speed) % g_game.planets[self.orbitting].orbitLength;
