@@ -40,7 +40,9 @@ var g_levels = {
 		tutorial_image: { 	name: 'level1.png', x: 400, y: 200, w: 400, h: 300,
 							text: 'LEVEL 1:\n \nOrder your fighters\nto attack the enemy\nby dragging from\none planet to\nthe other',
 							tx: 250, ty: 120
-		}
+		},
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-Xend",
+		winMessage: 'You can combine several paths together to make a longer path.'
 	},
 	'2': {
 		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
@@ -59,7 +61,9 @@ var g_levels = {
 		tutorial_image: { 	name: 'level2.png', x: 400, y: 200, w: 400, h: 300,
 							text: 'LEVEL 2:\n \nBuild a bomber and\nsend it to attack\nthe enemy\nfactory.',
 							tx: 250, ty: 120
-		}
+		},
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-MezzoForty",
+		winMessage: 'Bombers can damage buildings but are weak against ships.'
 	},
 	'3': {
 		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
@@ -77,7 +81,9 @@ var g_levels = {
 		tutorial_image: { 	name: 'level3.png', x: 400, y: 200, w: 400, h: 300,
 							text: 'LEVEL 3:\n \nBuild a factory and\ntake over another\nplanet. Then\nattack!',
 							tx: 250, ty: 120
-		}
+		},
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-IceStar",
+		winMessage: 'Active ships cost maintenance and slow down production.'
 	},
 	'4': {
 		planets: {	'A': { name: 'A', x: 200, y: 200, r: 26, color: '#ff00ff' },
@@ -93,6 +99,8 @@ var g_levels = {
 		ships: [],
 		buildings: [
 		],
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-AngryRobotIII",
+		winMessage: 'Now for a real challenge!'
 		/*tutorial_image: { 	name: 'level3.png', x: 400, y: 200, w: 400, h: 300,
 							text: 'LEVEL 4:\n \nBuild a factory and\ntake over another\nplanet. Then\nattack!',
 							tx: 250, ty: 120
@@ -115,7 +123,9 @@ var g_levels = {
 			{ team: 'team4', location: 'E' }
 		],
 		ships: [],
-		buildings: []
+		buildings: [],
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/Clearside - Assimilator",
+		winMessage: 'You won the whole shebang (so far...)'
 	}
 };
 		
@@ -141,6 +151,12 @@ var g_defs = {
 						size: 5
 					},
 					factory: {
+						damage: 0,
+						hits: 2,
+						speed: 1.5,
+						size: 5
+					},
+					'dummy-factory': {
 						damage: 0,
 						hits: 2,
 						speed: 1.5,
@@ -183,10 +199,6 @@ $(document).ready(function() {
  	g_game.sounds.gun = new buzz.sound( "./audio/fx/gun", {
 		formats: [ "ogg", "wav", "mp3" ]
 	});
- 	g_game.music.song1 = new buzz.sound( "//dl.dropbox.com/u/102070389/games/planetary/Clearside - Assimilator", {
-		formats: [ "mp3" ],
-	});
-	g_game.music.song1.play().loop();
 
 	if (!localStorage.planetary_level) {
 		localStorage.planetary_level = 1;
@@ -258,6 +270,11 @@ $(document).ready(function() {
 		console.log('down to ' + localStorage.planetary_level);
 		g_game.level = g_levels[localStorage.planetary_level];
 	}
+ 	g_game.music.song1 = new buzz.sound(g_game.level.song1, {
+		formats: [ "mp3" ],
+	});
+	g_game.music.song1.play().loop();
+	
 	for (var name in g_game.level.planets) {
 		g_game.planets[name] = new Planet(name, g_game.level.planets[name].x, g_game.level.planets[name].y, 
 											g_game.level.planets[name].r, g_game.level.planets[name].color);
@@ -944,7 +961,7 @@ var doGameLoop = function(frames) {
 	
 	// check for win or loss
 	if (cEnemies == 0) {
-		g_game.gameMessage[0].attr({ text: 'You win!' });
+		g_game.gameMessage[0].attr({ text: g_game.level.winMessage });
 		g_game.gameMessage.game.show = true;
 		positionGameText();
 		g_game.gameMessage.toFront().show();
