@@ -167,6 +167,12 @@ var g_defs = {
 						hits: 2,
 						speed: 2,
 						size: 8
+					},
+					satellite: {
+						damage: 0.5,
+						hits: 2,
+						speed: 1,
+						size: 6
 					}
 				
 				},
@@ -209,29 +215,48 @@ $(document).ready(function() {
 	g_game.raphPaper = Raphael("gameHolder");
 	g_game.shipSelector = g_game.raphPaper.set();
 	g_game.shipSelector.push(g_game.raphPaper.circle(0, 0, 40).attr({ stroke: '#999', 'stroke-width': 2 }));
-	g_game.shipSelector.push(g_game.raphPaper.ellipse(0, 0, 16, 12).attr({ stroke: '#228DFF', fill: '#228DFF', opacity: 0.8 }));
-	g_game.shipSelector.push(drawShip('fighter', 6, g_defs.teams['team1'].color, 0, -38));
-	g_game.shipSelector.push(drawShip('bomber', 6, g_defs.teams['team1'].color, 36, 0));
-	g_game.shipSelector.push(drawShip('factory', 6, g_defs.teams['team1'].color, 0, 38));
-	g_game.shipSelector.push(drawShip('gun', 8, g_defs.teams['team1'].color, -36, 0));
-	g_game.shipSelector[2].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[2]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'fighter'; });
-	g_game.shipSelector[3].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[3]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'bomber'; });
-	g_game.shipSelector[4].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[4]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'factory'; });
-	g_game.shipSelector[5].hover(function() { g_game.shipSelector.game.hoverSelect(g_game.shipSelector[5]); if (g_game.shipSelector.game.factory) g_game.shipSelector.game.factory.buildType = 'gun'; });
+
+	var selFighter = drawShip('fighter', 6, g_defs.teams['team1'].color, 0, -38);
+	var bbox = selFighter.getBBox();
+	var highlight = {};
+	highlight.fighter = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
+	var selBomber = drawShip('bomber', 6, g_defs.teams['team1'].color, 35, -18);
+	var bbox = selBomber.getBBox();
+	highlight.bomber = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
+	var selGun = drawShip('gun', 8, g_defs.teams['team1'].color, 34, 18);
+	var bbox = selGun.getBBox();
+	highlight.gun = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
+	var selFactory = drawShip('factory', 6, g_defs.teams['team1'].color, 0, 38);
+	var bbox = selFactory.getBBox();
+	highlight.factory = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
+	var selSatellite = drawShip('satellite', 6, g_defs.teams['team1'].color, -34, -18);
+	var bbox = selSatellite.getBBox();
+	highlight.satellite = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
+
+	g_game.shipSelector.push(highlight.fighter,highlight.bomber,highlight.factory,highlight.gun,highlight.satellite,selFighter,selBomber,selFactory,selGun,selSatellite);
+	selFighter.hover(function() { g_game.shipSelector.game.hoverSelect('fighter'); });
+	selBomber.hover(function() { g_game.shipSelector.game.hoverSelect('bomber'); });
+	selFactory.hover(function() { g_game.shipSelector.game.hoverSelect('factory'); });
+	selGun.hover(function() { g_game.shipSelector.game.hoverSelect('gun'); });
+	selSatellite.hover(function() { g_game.shipSelector.game.hoverSelect('satellite'); });
 	g_game.shipSelector.game = {
-		hoverSelect: function(theSet) {
-			var bbox = theSet.getBBox(true);
-			g_game.shipSelector[1].transform('');
-			g_game.shipSelector[1].attr({ cx: bbox.x + bbox.width/2, cy: bbox.y + bbox.height/2 });
+		hoverSelect: function(type) {
+			for (var key in highlight) {
+				highlight[key].hide();
+			}
+			highlight[type].show();
+			g_game.shipSelector.game.factory.buildType = type;
 		},
 		getSelectorFor: function(type) {
 			if (type == 'fighter')
-				return g_game.shipSelector[2];
+				return selFighter;
 			else if (type == 'bomber')
-				return g_game.shipSelector[3];
+				return selBomber;
 			else if (type == 'factory')
-				return g_game.shipSelector[4];
-			return g_game.shipSelector;
+				selFactory;
+			else if (type == 'satellite')
+				selSatellite;
+			return selGun;
 		}
 	};
 	g_game.shipSelector.hide();
@@ -406,6 +431,12 @@ var drawShip = function(type, r, color, offsetX, offsetY) {
 		ship.push(g_game.raphPaper.circle(offsetX, offsetY, r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		ship.push(g_game.raphPaper.rect(offsetX - r/4, offsetY - r/4, 2*r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
 	}
+	else if (type == 'satellite') {
+		ship.push(g_game.raphPaper.path('M' + (offsetX-r) + ' ' + (offsetY-r) + 'L' + (offsetX+r) + ' ' + (offsetY+r)
+				+ 'M' + (offsetX+r) + ' ' + (offsetY-r) + 'L' + (offsetX-r) + ' ' + (offsetY+r)
+				).attr({ stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.circle(offsetX, offsetY, r-2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+	}
 	
 	return ship;
 };
@@ -478,7 +509,7 @@ var Building = function(myType, planetName, myTeam) {
 	for (var i=0;i<self.image.length;i++) {
 		glow.push(self.image[i].glow());
 	}
-	
+		
 	if (self.type == 'factory') {
 		self.progressOutline = g_game.raphPaper.rect(bbox.x, bbox.y + bbox.height, bbox.width, 5)
 								.attr({ stroke: '#999', fill: '#333' });
@@ -495,17 +526,14 @@ var Building = function(myType, planetName, myTeam) {
  	 }
 	 
 	if (self.type == 'factory' && myTeam == 'team1') {
-		self.image.drag(
-			function(dx, dy) {
-			}, function() {
-				//g_game.shipSelector.attr({ cx: self.image.attrs.x + self.image.attrs.width/2, cy: self.image.attrs.y + self.image.attrs.height/2}).show().toFront();
-				g_game.shipSelector.transform('T' + (self.image[0].attrs.x + self.image[0].attrs.width/2) + ',' + (self.image[0].attrs.y + self.image[0].attrs.height/2)).show().toFront();
-				g_game.shipSelector.game.hoverSelect(g_game.shipSelector.game.getSelectorFor(self.buildType));
-				g_game.shipSelector.game.factory = self;
-			}, function() {
-				g_game.shipSelector.hide();
-			}
-		);
+		var dragStart =  function() {
+			g_game.shipSelector.transform('T' + (self.image[0].attrs.x + self.image[0].attrs.width/2) + ',' + (self.image[0].attrs.y + self.image[0].attrs.height/2)).show().toFront();
+			g_game.shipSelector.game.factory = self;
+			g_game.shipSelector.game.hoverSelect(self.buildType);
+		};
+		// apply drag methods to both image and glow effect
+		self.image.drag( null, dragStart, function() { g_game.shipSelector.hide(); });
+		glow.drag( null, dragStart, function() { g_game.shipSelector.hide(); });
 	}
 	
 	self.redraw = function() {
@@ -797,6 +825,9 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 		// for turorial, ship may not have an actual team
 		if (!g_game.teams[self.team])
 			return;
+		
+		if (self.type == 'satellite')
+			return;		// not allowed to leave orbit
 	
 		if (self.orbitting) {
 			self.clearDestination();
@@ -834,15 +865,13 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			if (otherShip.team != self.team) {
 				if (self.visible) {
 					var shot = g_game.raphPaper.path('M' + self.x + ' ' + self.y + 'L' + otherShip.x + ' ' + otherShip.y).attr({ stroke: '#ff5555' });
+					g_game.sounds.laser.play();
 					setTimeout(function() { shot.remove(); }, 100);
 				}
  	 
 				if (Math.random() > 0.5)	// needs accuracy
 					otherShip.takeDamage(self.damage);
 				i = g_game.planets[self.orbitting].orbittingShips.length; // break loop
-				if (self.visible) {
-					g_game.sounds.laser.play();
-				}	
 			}
 		}
 	
@@ -869,7 +898,7 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			self.image.transform('t' + self.x + ',' + self.y);
 			if (frames % self.fireSpeed == 0) {
 				// look for target
-				if (self.type == 'fighter') {
+				if (self.type == 'fighter' || self.type == 'satellite') {
 					self.attackAvailableTargets();
 				}
 				else if (self.type == 'bomber') {
