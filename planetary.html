@@ -163,14 +163,14 @@ var g_defs = {
 						size: 5
 					},
 					gun: {
-						damage: 0,
+						damage: 1.5,
 						hits: 2,
 						speed: 2,
 						size: 8
 					},
 					satellite: {
 						damage: 0.5,
-						hits: 2,
+						hits: 1.5,
 						speed: 1,
 						size: 6
 					}
@@ -215,6 +215,7 @@ $(document).ready(function() {
 	g_game.raphPaper = Raphael("gameHolder");
 	g_game.shipSelector = g_game.raphPaper.set();
 	g_game.shipSelector.push(g_game.raphPaper.circle(0, 0, 40).attr({ stroke: '#999', 'stroke-width': 2 }));
+	g_game.shipSelector.push(g_game.raphPaper.circle(0, 0, 60).attr({ fill: '#fff', opacity: 0 }));
 
 	var selFighter = drawShip('fighter', 6, g_defs.teams['team1'].color, 0, -38);
 	var bbox = selFighter.getBBox();
@@ -501,7 +502,7 @@ var Building = function(myType, planetName, myTeam) {
 	var builtByMe = 0;
 	self.numShips = 0;
 	var gunFireTime = 20;
-	self.damage = 1;
+	self.damage = g_defs.shipStats[this.type].damage;
 	
 	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x, self.planet.y);
 	var bbox = self.image.getBBox();
@@ -796,10 +797,13 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	
 	self.takeDamage = function(amt) {
 		self.hits -= amt;
-		if (self.hits <= 0)
+		// satellites die in one hit always
+		if (self.hits <= 0 || self.type == 'satellite') {
 			self.destroy();
-		else
+		}
+		else {
 			self.redraw();
+		}
 	}
 	
 	self.destroy = function() {
