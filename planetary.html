@@ -117,6 +117,27 @@ var g_levels = {
 		},
 		routes: [ 'A_B', 'B_C', 'C_D', 'D_E', 'C_F', 'C_G' ],
 		players: [
+			{ team: 'team1', location: 'F' },
+			{ team: 'team2', location: 'A' },
+			{ team: 'team3', location: 'G' },
+			{ team: 'team4', location: 'E' }
+		],
+		ships: [],
+		buildings: [],
+		song1: "//dl.dropbox.com/u/102070389/games/planetary/Clearside - Assimilator",
+		winMessage: 'Last level coming up...'
+	},
+	'6': {
+		planets: {	'A': { name: 'A', x: 100, y: 100, r: 26, color: '#ff00ff' },
+					'B': { name: 'B', x: 200, y: 300, r: 24, color: '#009966' },
+					'C': { name: 'C', x: 500, y: 400, r: 28, color: '#ff9999' },
+					'D': { name: 'D', x: 700, y: 400, r: 22, color: '#960596' },
+					'E': { name: 'E', x: 800, y: 300, r: 23, color: '#4598DD' },
+					'F': { name: 'F', x: 400, y: 600, r: 30, color: '#9845DD' },
+					'G': { name: 'G', x: 600, y: 200, r: 24, color: '#989233' },
+		},
+		routes: [ 'A_B', 'B_C', 'C_D', 'D_E', 'C_F', 'C_G' ],
+		players: [
 			{ team: 'team1', location: 'C' },
 			{ team: 'team2', location: 'A' },
 			{ team: 'team3', location: 'G' },
@@ -432,10 +453,21 @@ var Explosion = function(image) {
 var drawResearch = function(type, r, color, offsetX, offsetY) {
 	var icon = g_game.raphPaper.set();
 	if (type == 'armour') {
+		//icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r, 'L', offsetX+r, offsetY-r]).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		icon.push(g_game.raphPaper.ellipse(offsetX-r, offsetY-r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		//icon.push(g_game.raphPaper.path(sector(offsetX, offsetX, r+2, 315, 225)).attr( { fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 	}
 
 	return icon;
+}
+
+function sector(cx, cy, radius, startAngle, endAngle) {
+	var rad = Math.PI / 180;
+	var x1 = cx + radius * Math.cos(-startAngle * rad),
+	x2 = cx + radius * Math.cos(-endAngle * rad),
+	y1 = cy + radius * Math.sin(-startAngle * rad),
+	y2 = cy + radius * Math.sin(-endAngle * rad);
+	return ["M", cx, cy, "L", x1, y1, "A", radius, radius, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"];
 }
 
 var drawShip = function(type, r, color, offsetX, offsetY) {
@@ -474,19 +506,12 @@ var drawShip = function(type, r, color, offsetX, offsetY) {
 		ship.push(g_game.raphPaper.circle(offsetX, offsetY, r-2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 	}
 	else if (type == 'laboratory') {
-		var rad = Math.PI / 180;
-		function sector(cx, cy, radius, startAngle, endAngle, params) {
-				var x1 = cx + radius * Math.cos(-startAngle * rad),
-				x2 = cx + radius * Math.cos(-endAngle * rad),
-				y1 = cy + radius * Math.sin(-startAngle * rad),
-				y2 = cy + radius * Math.sin(-endAngle * rad);
-			return g_game.raphPaper.path(["M", cx, cy, "L", x1, y1, "A", radius, radius, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"]).attr(params);
-		}
-		ship.push(g_game.raphPaper.rect(offsetX - 8, offsetY - 4, 8, 8).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.path('M' + (offsetX-r) + ' ' + (offsetY-r) + 'L' + (offsetX-2*r) + ' ' + (offsetY+r) 
+										+ 'L' + (offsetX) + ' ' + (offsetY+r) + 'L' + (offsetX-r) + ' ' + (offsetY-r)).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		var x = offsetX+r/2-2;
 		y = offsetY-3*r/2+2;
 		ship.push(g_game.raphPaper.path('M' + x + ' ' + y + 'L' + (x+r) + ' ' + (y-r)).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
-		ship.push(sector(x, y, r+2, 135, 315, { fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.path(sector(x, y, r+2, 135, 315)).attr( { fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 
 	}
 	
@@ -564,6 +589,7 @@ var Building = function(myType, planetName, myTeam) {
 	}
 		
 	if (self.type == 'factory') {
+		// the production progress meter
 		self.progressOutline = g_game.raphPaper.rect(bbox.x, bbox.y + bbox.height, bbox.width, 5)
 								.attr({ stroke: '#999', fill: '#333' });
 		self.progress = g_game.raphPaper.rect(self.progressOutline.attrs.x + 1, self.progressOutline.attrs.y + 1, 0.1, self.progressOutline.attrs.height-2)
@@ -590,7 +616,8 @@ var Building = function(myType, planetName, myTeam) {
 	}
 	else if (self.type == 'laboratory' && myTeam == 'team1') {
 		var dragResearchStart =  function() {
-			g_game.researchSelector.transform('T' + (self.image[0].attrs.x + self.image[0].attrs.width/2) + ',' + (self.image[0].attrs.y + self.image[0].attrs.height/2)).show().toFront();
+			var bbox = self.image.getBBox();
+			g_game.researchSelector.transform('T' + (bbox.x + bbox.width/2) + ',' + (bbox.y + bbox.height/2)).show().toFront();
 			g_game.researchSelector.game.laboratory = self;
 			g_game.researchSelector.game.hoverSelect(self.researchType);
 		};
