@@ -76,7 +76,8 @@ var g_levels = {
 		],
 		ships: [],
 		buildings: [
-			{ team: 'team2', type: 'factory', location: 'C' }
+			{ team: 'team2', type: 'factory', location: 'C' },
+			{ team: 'team1', type: 'laboratory', location: 'B' }
 		],
 		tutorial_image: { 	name: 'level3.png', x: 400, y: 200, w: 400, h: 300,
 							text: 'LEVEL 3:\n \nBuild a factory and\ntake over another\nplanet. Then\nattack!',
@@ -250,9 +251,17 @@ $(document).ready(function() {
 	var bbox = selArmour.getBBox();
 	var highlightResearch = {};
 	highlightResearch.armour = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selArmour);
+	var selGun = drawResearch('gun', 6, g_defs.teams['team1'].color, 34, 18);
+	var bbox = selGun.getBBox();
+	highlightResearch.gun = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selArmour);
+	var selEngine = drawResearch('engine', 6, g_defs.teams['team1'].color, -34, 18);
+	var bbox = selEngine.getBBox();
+	highlightResearch.engine = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selArmour);
 	
-	g_game.researchSelector.push( highlightResearch.armour, selArmour);
+	g_game.researchSelector.push( highlightResearch.armour, highlightResearch.gun, highlightResearch.engine, selArmour, selGun, selEngine);
 	selArmour.hover(function() { g_game.researchSelector.game.hoverSelect('armour'); });
+	selGun.hover(function() { g_game.researchSelector.game.hoverSelect('gun'); });
+	selEngine.hover(function() { g_game.researchSelector.game.hoverSelect('engine'); });
 	g_game.researchSelector.game = {
 		hoverSelect: function(type) {
 			for (var key in highlightResearch) {
@@ -453,11 +462,26 @@ var Explosion = function(image) {
 var drawResearch = function(type, r, color, offsetX, offsetY) {
 	var icon = g_game.raphPaper.set();
 	if (type == 'armour') {
-		//icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r, 'L', offsetX+r, offsetY-r]).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
-		icon.push(g_game.raphPaper.ellipse(offsetX-r, offsetY-r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r, 'L', offsetX+r, offsetY-r, 
+										'Q', offsetX+r, offsetY+r/2, offsetX, offsetY+r,
+										'Q', offsetX-r, offsetY+r/2, offsetX-r, offsetY-r]).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		//icon.push(g_game.raphPaper.ellipse(offsetX-r, offsetY-r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		//icon.push(g_game.raphPaper.path(sector(offsetX, offsetX, r+2, 315, 225)).attr( { fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 	}
-
+	else if (type == 'gun') {
+		//icon = drawShip('fighter', 5, g_defs.teams['team1'].color, offsetX, offsetY);
+		icon.push(g_game.raphPaper.rect(offsetX-r/2,offsetY-3*r/4,r*2,r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
+		icon.push(g_game.raphPaper.rect(offsetX-r/2,offsetY+r/4,r*2,r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
+		icon.push(g_game.raphPaper.ellipse(offsetX-r/2,offsetY,r,3*r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
+	}
+	else if (type == 'engine') {
+		icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r,
+										'Q', offsetX-r/2, offsetY-r, offsetX+r/2, offsetY-r/2,
+										'L', offsetX+r/2, offsetY+r/2,
+										'Q', offsetX-r/2, offsetY+r, offsetX-r, offsetY+r,
+										'L', offsetX-r, offsetY-r]).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+	}
+	
 	return icon;
 }
 
