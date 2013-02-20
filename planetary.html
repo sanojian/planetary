@@ -472,13 +472,16 @@ var drawResearch = function(type, r, color, offsetX, offsetY) {
 		//icon = drawShip('fighter', 5, g_defs.teams['team1'].color, offsetX, offsetY);
 		icon.push(g_game.raphPaper.rect(offsetX-r/2,offsetY-3*r/4,r*2,r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
 		icon.push(g_game.raphPaper.rect(offsetX-r/2,offsetY+r/4,r*2,r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
-		icon.push(g_game.raphPaper.ellipse(offsetX-r/2,offsetY,r,3*r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
+		icon.push(g_game.raphPaper.ellipse(offsetX-r/2,offsetY,r,r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
 	}
 	else if (type == 'engine') {
+		icon.push(g_game.raphPaper.rect(offsetX+r/2, offsetY-r/2,r,r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 2 }));
 		icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r,
-										'Q', offsetX-r/2, offsetY-r, offsetX+r/2, offsetY-r/2,
+										'L', offsetX+r/2, offsetY-r/2,
+										//'Q', offsetX-r/2, offsetY-r, offsetX+r/2, offsetY-r/2,
 										'L', offsetX+r/2, offsetY+r/2,
-										'Q', offsetX-r/2, offsetY+r, offsetX-r, offsetY+r,
+										'L', offsetX-r, offsetY+r,
+										//'Q', offsetX-r/2, offsetY+r, offsetX-r, offsetY+r,
 										'L', offsetX-r, offsetY-r]).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 	}
 	
@@ -494,13 +497,24 @@ function sector(cx, cy, radius, startAngle, endAngle) {
 	return ["M", cx, cy, "L", x1, y1, "A", radius, radius, 0, +(endAngle - startAngle > 180), 0, x2, y2, "z"];
 }
 
-var drawShip = function(type, r, color, offsetX, offsetY) {
+function getUpgrades() {
+	var result = {};
+	for (var key in g_game.buildings) {
+		if (g_game.buildings[key].type == 'laboratory') {
+			result[g_game.buildings[key].researchType] = true;
+		}
+	}
+	return result;
+}
+
+var drawShip = function(type, r, color, offsetX, offsetY, upgrades) {
 	var ship = g_game.raphPaper.set();
 	if (type == 'fighter') {
-		var points = [
-			[ [-r*1.5, -r/2], [r, 0], 	[-r*1.5, r/2] ],
-			[ [-r, -r], 	[2*r, 0], 	[-r, r] ]
-		];
+		var points = [];
+		if (upgrades && upgrades.engine) {
+			points.push([ [-r*1.5, -r/2], [r, 0], 	[-r*1.5, r/2] ]);
+		}
+		points.push([ [-r, -r], 	[2*r, 0], 	[-r, r] ]);
 		for (var j=0;j<points.length;j++) {
 			var path = '';
 			for (var i=0;i<points[j].length;i++) {
@@ -892,9 +906,20 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	self.damage = g_defs.shipStats[this.type].damage;
 	var frames = Math.floor(Math.random() * self.fireSpeed);
 	
+	var upgrades = getUpgrades();
+	if (upgrades.engine) {
+		self.speed += 0.5 * self.speed;
+	}
+	if (upgrades.armour) {
+		self.hits += 0.5 * self.hits;
+	}
+	if (upgrades.gun) {
+		self.damage += 0.5 * self.damage;
+	}
+	
 	self.redraw = function() {
 		if (!self.image)
-			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, 0, 0);
+			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, 0, 0, upgrades);
 
 		self.image.attr({ 'stroke-width': self.hits });
 		if (!g_game.planets[self.orbitting].visible) {
