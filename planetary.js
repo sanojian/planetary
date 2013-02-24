@@ -245,7 +245,7 @@ function loadLevel() {
 	// center on players home
 	var home = g_game.planets[g_game.level.players[0].location];
 	g_game.background.game.vx = home.x - g_game.raphPaper.width/4;
-	g_game.background.game.vy = home.y - g_game.raphPaper.height/2 - 30;
+	g_game.background.game.vy = home.y - g_game.raphPaper.height/2 + 30;
 	g_game.raphPaper.setViewBox(g_game.background.game.vx, g_game.background.game.vy, g_game.raphPaper.width, g_game.raphPaper.height);
 
 	positionGameText();
