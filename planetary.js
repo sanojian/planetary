@@ -957,9 +957,9 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			self.y += self.speed * Math.sin(angle);
 			// get bbox of set so we can rotate around center
 			//for (var i=0;i<self.image.length;i++) {
-			var bbox = self.image[self.image.length-1].getBBox();
-			self.image.transform('r' + (angle * 180 / Math.PI) + ',' + (bbox.x + bbox.w/2) + ',' + (bbox.y + bbox.h/2));
-				self.image.transform('t' + self.x + ',' + self.y);
+			//var bbox = self.image[self.image.length-1].getBBox();
+			//self.image.transform('r' + (angle * 180 / Math.PI) + ',' + (bbox.x + bbox.w/2) + ',' + (bbox.y + bbox.h/2));
+			self.image.transform('t' + self.x + ',' + self.y);
 			//}
 			
 		}
