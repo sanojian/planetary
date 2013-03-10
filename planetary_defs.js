@@ -79,8 +79,8 @@ var g_levels = {
 		buildings: [
 		],
 		tutorial_image: { 	name: 'blank.png', x: 400, y: 200, w: 300, h: 225,
-							text: 'LEVEL 4:\n \nNow it is up to\nyou. Find the\nenemy and\ndefeat them!',
-							tx: 200, ty: 80
+							text: 'LEVEL 4:\n \nNow it is up to you.\nFind the enemy\n and defeat them!\n ',
+							tx: 150, ty: 120
 		},
 		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-AngryRobotIII",
 		winMessage: 'Nice job.\nNow for two enemies...'
@@ -101,8 +101,8 @@ var g_levels = {
 		ships: [],
 		buildings: [],
 		tutorial_image: { 	name: 'blank.png', x: 400, y: 200, w: 300, h: 225,
-							text: 'LEVEL 5:\n \nTry two enemies\non for size.\n ',
-							tx: 200, ty: 80
+							text: 'LEVEL 5:\n \nTry two enemies\non for size...\n ',
+							tx: 150, ty: 120
 		},
 		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-MezzoForty",
 		winMessage: 'Last level coming up...'
@@ -127,10 +127,10 @@ var g_levels = {
 		buildings: [],
 		tutorial_image: { 	name: 'blank.png', x: 400, y: 200, w: 300, h: 225,
 							text: 'LEVEL 6:\n \nThree enemies. You\ncan do it!\n ',
-							tx: 200, ty: 80
+							tx: 150, ty: 120
 		},
 		song1: "//dl.dropbox.com/u/102070389/games/planetary/Clearside - Assimilator",
-		winMessage: 'You won the whole shebang (so far...)'
+		winMessage: 'You saved your species!\nGive a high rating '
 	}
 };
 		

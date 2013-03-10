@@ -226,7 +226,7 @@ function loadLevel() {
 	}
 	if (g_game.level.tutorial_image) {
 		g_game.tutorial_set = g_game.raphPaper.set([
-			g_game.raphPaper.text(0, 0, g_game.level.tutorial_image.text).attr(g_defs.fontAttribs).attr( { 'font-size': 16 } ),
+			g_game.raphPaper.text(0, 0, g_game.level.tutorial_image.text).attr(g_defs.fontAttribs).attr( { 'font-size': 18 } ),
 			g_game.raphPaper.rect(g_game.level.tutorial_image.x, g_game.level.tutorial_image.y, g_game.level.tutorial_image.w, g_game.level.tutorial_image.h, 12)
 				.attr({ fill: '#228DFF', opacity: 0.3 }),
 			g_game.raphPaper.rect(g_game.level.tutorial_image.x, g_game.level.tutorial_image.y, g_game.level.tutorial_image.w, g_game.level.tutorial_image.h, 12)
