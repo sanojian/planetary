@@ -14,7 +14,7 @@
         <script language="javascript">
 
 $(document).ready(function() {
-	var g_ver = '0.5.1';
+	var g_ver = '0.5.2';
 	
 	$.getScript('./planetary_defs.js?ver=' + g_ver)
 		.done(function(script, textStatus) {
@@ -29,8 +29,8 @@ $(document).ready(function() {
 		
 	</head>
 	
-	<body bgcolor="#000000" style="background-image:url(./images/background.png)">
-		<table align="center">
+	<body bgcolor="#000000" style="background-image:url(./images/background.png); margin: 0px;">
+		<table align="center" style="margin: 0px;">
 			<tr>
 				<td id="tdGameArea"><div id="gameHolder"></div></td>
 			</tr>

@@ -17,7 +17,7 @@ var g_levels = {
 		],
 		buildings: [],
 		tutorial_image: { 	name: 'level1.png', x: 400, y: 200, w: 300, h: 225,
-							text: 'LEVEL 1:\n \nOrder your fighters\nto attack the enemy\nby dragging from\none planet to\nthe other',
+							text: 'LEVEL 1:\n \nOrder your fighters\nto attack the enemy\nby dragging from\none planetetary\norbit to the other',
 							tx: 200, ty: 80
 		},
 		song1: "//dl.dropbox.com/u/102070389/games/planetary/DST-Xend",

@@ -537,8 +537,9 @@ var Building = function(myType, planetName, myTeam) {
 	
 	self.takeDamage = function(amt) {
 		self.hits -= amt;
-		if (self.hits <=0)
+		if (self.hits <=0) {
 			self.destroy();
+		}
 		else
 			self.redraw();
 	};
@@ -546,6 +547,9 @@ var Building = function(myType, planetName, myTeam) {
 	self.redraw();
 	self.bAlive = true;
 	self.destroy = function(skipAnimate) {
+		if (g_game.shipSelector.game.factory == self) {
+			g_game.shipSelector.hide();
+		}
 		if (self.visible && !skipAnimate) {
 			g_game.explosions.push(new Explosion(self.image));
 		}
@@ -680,31 +684,45 @@ var Planet = function(name, myX, myY, myR, myColor) {
 		function() {
 			imgPlanet.attr({ stroke: color });
 			self.orbit.attr({ 'stroke-width': 2, stroke: '#666' });
-			if (g_game.routeSelector.game.isActive) {
-				var lastPoint = g_game.teams.team1.routePoints[g_game.teams.team1.routePoints.length-1];
-				if (lastPoint != self.name) { 
-					var bFound = false;
-					for (var i=0;!bFound && i<g_game.level.routes.length;i++) {
-						if (g_game.level.routes[i].indexOf(lastPoint) != -1 && g_game.level.routes[i].indexOf(self.name) != -1) {
-							bFound = true;
-						}
-					}
-					if (bFound) {
-						g_game.teams.team1.routePoints.push(self.name);
-						for (var i=0;i<g_game.ships.length;i++) {
-							if (g_game.ships[i].team == 'team1')
-								g_game.ships[i].setDestination();
-						}
-					}
-				}
-			}
+			//if (g_game.routeSelector.game.isActive) {
+			//	self.dragOver();
+			//}
 		}, function() {
 			imgPlanet.attr({ stroke: '#000' });
 			self.orbit.attr({ 'stroke-width': 1, stroke: '#222' });
 		}
 	);
+	
+	self.dragOver = function() {
+		var lastPoint = g_game.teams.team1.routePoints[g_game.teams.team1.routePoints.length-1];
+		if (lastPoint != self.name) { 
+			var bFound = false;
+			for (var i=0;!bFound && i<g_game.level.routes.length;i++) {
+				if (g_game.level.routes[i].indexOf(lastPoint) != -1 && g_game.level.routes[i].indexOf(self.name) != -1) {
+					bFound = true;
+				}
+			}
+			if (bFound) {
+				g_game.teams.team1.routePoints.push(self.name);
+				for (var i=0;i<g_game.ships.length;i++) {
+					if (g_game.ships[i].team == 'team1')
+						g_game.ships[i].setDestination();
+				}
+			}
+		}
+	
+	};
+	
 	cover.drag(
 		function(dx, dy, x, y, evt) {
+		
+			// over another planet?
+			for (var key in g_game.planets) {
+				if (Math.abs(dx + g_game.routeSelector.game.odx - g_game.planets[key].x) < g_game.planets[key].r*2 && Math.abs(dy + g_game.routeSelector.game.ody - g_game.planets[key].y) < g_game.planets[key].r*2) {
+					g_game.planets[key].dragOver();
+				}
+			}
+			
 			var path = '';
 			for (var i=0;i<g_game.teams.team1.routePoints.length;i++) {
 				path += (i == 0 ? 'M' : 'L') + g_game.planets[g_game.teams.team1.routePoints[i]].x 
