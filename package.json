@@ -1,0 +1,12 @@
+{
+	"name": "Planetary",
+	"version": "0.0.2",
+	"private": false,
+	"devDependencies": {
+		"grunt": "~0.4.1",
+		"matchdep": "~0.1.2",
+		"grunt-contrib-watch": "~0.5.1",
+		"grunt-contrib-less": "~0.7.0",
+		"grunt-contrib-concat": "~0.3.0"
+	}
+}

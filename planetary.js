@@ -3,25 +3,54 @@
 */
 
 var g_game = {sounds: {}, music: {}};
-		
-function initPlanetary() {
 
+
+var GameState = function(game) {
+};
+
+// Load images and sounds
+GameState.prototype.preload = function() {
+	//this.game.load.spritesheet('spriteSheet', './images/lofi_scifi_v2_trans.png', 8, 8);
+
+	this.game.load.atlasJSONHash('allsprites', './images/lofi_scifi_v2_trans.png', null, g_spriteAtlas);
+
+};
+
+// Setup the example
+GameState.prototype.create = function() {
+
+	//var ship = this.game.add.sprite(100, 100, 'spriteSheet', 2 + 272/8*256/8);
+	//var ship = this.game.add.sprite(100, 100, 'ship');
+
+	//var frameData = this.game.cache.getFrameData('allsprites');
+	//var shipFrame = frameData.getFrameByName('ship');
+
+	var ship = this.game.add.sprite(100, 100, null, 'ship3');
+
+};
+
+// Setup game
+var g_game = new Phaser.Game(640, 480, Phaser.AUTO, 'game');
+g_game.state.add('game', GameState, true);
+
+function initPlanetary() {
+	return;
 	g_game.sounds.bomber = new buzz.sound( "./audio/fx/bomb", {
 		formats: [ "ogg", "wav", "mp3" ]
 	});
 	g_game.sounds.laser = new buzz.sound( "./audio/fx/laser", {
 		formats: [ "ogg", "wav", "mp3" ]
 	});
- 	g_game.sounds.explosion = new buzz.sound( "./audio/fx/explosion", {
+	g_game.sounds.explosion = new buzz.sound( "./audio/fx/explosion", {
 		formats: [ "ogg", "wav", "mp3" ]
 	});
- 	g_game.sounds.gun = new buzz.sound( "./audio/fx/gun", {
+	g_game.sounds.gun = new buzz.sound( "./audio/fx/gun", {
 		formats: [ "ogg", "wav", "mp3" ]
 	});
-	
+
 	$('#gameHolder').width($(document).width()-32).height($(document).height()-32);
 	g_game.raphPaper = Raphael("gameHolder");
-	
+
 	// research selector
 	g_game.researchSelector = g_game.raphPaper.set();
 	g_game.researchSelector.push(g_game.raphPaper.circle(0, 0, 40).attr({ stroke: '#999', 'stroke-width': 2 }));
@@ -37,7 +66,7 @@ function initPlanetary() {
 	var selEngine = drawResearch('engine', 6, g_defs.teams['team1'].color, -34, 18);
 	var bbox = selEngine.getBBox();
 	highlightResearch.engine = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selArmour);
-	
+
 	g_game.researchSelector.push( highlightResearch.armour, highlightResearch.gun, highlightResearch.engine, selArmour, selGun, selEngine);
 	selArmour.hover(function() { g_game.researchSelector.game.hoverSelect('armour'); });
 	selGun.hover(function() { g_game.researchSelector.game.hoverSelect('gun'); });
@@ -53,7 +82,7 @@ function initPlanetary() {
 	};
 	g_game.researchSelector.hide();
 
-	
+
 	// ship selector
 	g_game.shipSelector = g_game.raphPaper.set();
 	g_game.shipSelector.push(g_game.raphPaper.circle(0, 0, 40).attr({ stroke: '#999', 'stroke-width': 2 }));
@@ -80,7 +109,7 @@ function initPlanetary() {
 	//highlight.laboratory = g_game.raphPaper.ellipse(bbox.x + bbox.width/2, bbox.y + bbox.height/2, 16, 12).attr({ stroke: '#fff', fill: '#228DFF', opacity: 0.8 }).insertBefore(selFighter);
 
 	g_game.shipSelector.push(	highlight.fighter,highlight.bomber,highlight.factory,
-								selFighter,selBomber,selFactory);
+		selFighter,selBomber,selFactory);
 	//g_game.shipSelector.push(	highlight.fighter,highlight.bomber,highlight.factory,highlight.gun,highlight.satellite,highlight.laboratory,
 	//							selFighter,selBomber,selFactory,selGun,selSatellite,selLaboratory);
 	selFighter.hover(function() { g_game.shipSelector.game.hoverSelect('fighter'); });
@@ -99,7 +128,7 @@ function initPlanetary() {
 		}
 	};
 	g_game.shipSelector.hide();
-		
+
 	g_game.background = g_game.raphPaper.rect(0,0,2048,2048,12).attr( { stroke: '#eeeeee', fill: '#eeeeee', opacity: 0.02 });
 	g_game.background.game = { vx: 0, vy: 0 };
 	g_game.background.drag(
@@ -130,6 +159,7 @@ function initPlanetary() {
 
 	loadLevel();
 };
+
 
 function clearLevel() {
 
