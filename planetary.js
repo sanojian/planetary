@@ -46,7 +46,7 @@ GameState.prototype.create = function() {
 
 GameState.prototype.update = function() {
 
-	//doGameLoop(this.frame++);
+	doGameLoop(this.frame++);
 
 };
 
@@ -540,7 +540,8 @@ var Building = function(myType, planetName, myTeam) {
 	var gunFireTime = 20;
 	self.damage = g_defs.shipStats[this.type].damage;
 	
-	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x-4, self.planet.y-4);
+	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x, self.planet.y);
+	self.image.anchor.set(0.5);
 	/*var bbox = self.image.getBBox();
 	var glow = g_game.raphPaper.set();
 	for (var i=0;i<self.image.length;i++) {
@@ -621,7 +622,7 @@ var Building = function(myType, planetName, myTeam) {
 		if (!self.bAlive) return;
 		frames++;
 		if (self.type == 'factory') {
-			var w = self.progress.attrs.width;
+			var w = 8;//self.progress.attrs.width;
 			// more ships makes factory build slower
 			var timeToBuild = self.buildSpeed + Math.pow(2, self.numShips);
 			if (frames > timeToBuild) {
@@ -629,10 +630,10 @@ var Building = function(myType, planetName, myTeam) {
 				g_game.ships.push(new Ship(self.buildType, self.team, self.planet.x, self.planet.y, 3, planetName));
 				builtByMe++;
 			}
-			var newW = (self.progressOutline.attrs.width-2) * frames / timeToBuild;
+			/*var newW = (self.progressOutline.attrs.width-2) * frames / timeToBuild;
 			if (Math.floor(w) != Math.floor(newW)) {
 				self.progress.attr({ width: newW });
-			}
+			}*/
 		}
 		else if (self.type == 'gun') {
 			var target = null;
@@ -745,9 +746,20 @@ var Planet = function(name, myX, myY, myR, myColor) {
 	this.orbitLength = this.orbit.circumference();
 	
 	//var imgPlanet = g_game.raphPaper.circle(myX, myY, myR).attr({ fill: color, 'stroke-width': 3 });
-	var imgPlanet = g_game.add.sprite(myX-20, myY-20, 'allsprites', 'planet0');
-	/*var cover = g_game.raphPaper.circle(this.x, this.y, this.r*2).attr( { fill: '#fff', opacity: 0 });
+	var imgPlanet = g_game.add.sprite(myX, myY, 'allsprites', 'planet0');
+	imgPlanet.anchor.set(0.5);
+	imgPlanet.inputEnabled = true;
+	imgPlanet.events.onInputDown.add(function() {
+		g_game.teams.team1.routePoints = [name];
 
+	}, this);
+	imgPlanet.events.onInputUp.add(function() {
+		g_game.teams.team1.routePoints.push(name);
+		console.log(g_game.teams.team1.routePoints);
+	}, this);
+	
+	/*var cover = g_game.raphPaper.circle(this.x, this.y, this.r*2).attr( { fill: '#fff', opacity: 0 });
+	
 	cover.hover(
 		function() {
 			imgPlanet.attr({ stroke: color });
@@ -830,14 +842,14 @@ var Planet = function(name, myX, myY, myR, myColor) {
 	};
 	
 	this.hide = function() {
-		this.orbit.hide();
+		/*this.orbit.hide();
 		imgPlanet.hide();
-		cover.hide();
+		cover.hide();*/
 	};
 	this.show = function() {
-		this.orbit.show();
+		/*this.orbit.show();
 		imgPlanet.show();
-		cover.show();
+		cover.show();*/
 	};
 	this.addOrbitter = function(orbitter) {
 		this.orbittingShips.push(orbitter);
@@ -883,6 +895,7 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	self.redraw = function() {
 		if (!self.image) {
 			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, locX, locY, upgrades);
+			self.image.anchor.set(0.5);
 		}
 
 		/*self.image.attr({ 'stroke-width': self.hits });
@@ -998,10 +1011,12 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 				return self.destroy();
 			}
 			orbitDistanceTravelled = (orbitDistanceTravelled + self.speed) % g_game.planets[self.orbitting].orbitLength;
-			var pt = g_game.planets[self.orbitting].orbit.getPointAtLength(orbitDistanceTravelled);
+			var pt = findPointAtLength(g_game.planets[self.orbitting].x, g_game.planets[self.orbitting].y, g_game.planets[self.orbitting].r, orbitDistanceTravelled, false);//g_game.planets[self.orbitting].orbit.getPointAtLength(orbitDistanceTravelled);
 			self.x = pt.x;
 			self.y = pt.y;
-			self.image.transform('t' + self.x + ',' + self.y);
+			//self.image.transform('t' + self.x + ',' + self.y);
+			self.image.x = pt.x;
+			self.image.y = pt.y;
 			if (frames % self.fireSpeed == 0) {
 				// look for target
 				if (self.type == 'fighter' || self.type == 'satellite') {
@@ -1054,6 +1069,21 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	
 	return this;
 };
+
+function findPointAtLength(Cx, Cy, r, L, clockwise) {
+	var Ax = Cx;
+	var Ay = Cy - r;
+    var angle = Math.atan2(Ay - Cy, Ax - Cx);
+    if (clockwise) {
+        angle = angle - L / r;
+    }
+    else {
+        angle = angle + L / r;
+    }
+    var Bx = Cx + r * Math.cos(angle);
+    var By = Cy + r * Math.sin(angle);
+    return { x: Bx, y: By};
+}
 
 var doGameLoop = function(frames) {
 	var cEnemies = 0;
@@ -1135,46 +1165,46 @@ var doGameLoop = function(frames) {
 			}
 
 			if (g_game.planets[key].visible) {
-				g_game.planets[key].show();
+				//g_game.planets[key].show();
 			}
 			else {
-				g_game.planets[key].hide();
+				//g_game.planets[key].hide();
 			}
 		}
 		for (var key in g_game.routes) {
 			if (g_game.planets[g_game.routes[key].startPlanet].occupied) {
-				g_game.routes[key].image.show();
+				//g_game.routes[key].image.show();
 				g_game.routes[key].visible = true;
 				g_game.planets[g_game.routes[key].endPlanet].visible = true;
-				g_game.planets[g_game.routes[key].endPlanet].show();
+				//g_game.planets[g_game.routes[key].endPlanet].show();
 			}
 			else if (g_game.planets[g_game.routes[key].endPlanet].occupied) {
 				g_game.routes[key].image.show();
 				g_game.routes[key].visible = true;
 				g_game.planets[g_game.routes[key].startPlanet].visible = true;
-				g_game.planets[g_game.routes[key].startPlanet].show();
+				//g_game.planets[g_game.routes[key].startPlanet].show();
 			}
 			else {
 				g_game.routes[key].visible = false;
-				g_game.routes[key].image.hide();
+				//g_game.routes[key].image.hide();
 			}
 		}
 		for (var key in g_game.buildings) {
 			if (g_game.buildings[key] && g_game.planets[key].visible) {
 				g_game.buildings[key].visible = true;
-				g_game.buildings[key].image.show();
+				//g_game.buildings[key].image.show();
 				if (g_game.buildings[key].type == 'factory') {
-					g_game.buildings[key].progressOutline.show();
-					g_game.buildings[key].progress.show();
+					//g_game.buildings[key].progressOutline.show();
+					//g_game.buildings[key].progress.show();
 				}
-				g_game.buildings[key].image.show();
+				//g_game.buildings[key].image.show();
 			}
 			else if (g_game.buildings[key]) {
 				g_game.buildings[key].visible = false;
-				g_game.buildings[key].image.hide();
+				//g_game.buildings[key].image.hide();
 				if (g_game.buildings[key].type == 'factory') {
 					g_game.buildings[key].progressOutline.hide();
-					g_game.buildings[key].progress.hide();
+					//g_game.buildings[key].progress.hide();
 				}
 			}
 		}
@@ -1182,19 +1212,19 @@ var doGameLoop = function(frames) {
 		for (var i=0;i<g_game.ships.length;i++) {
 			if (g_game.ships[i].team == 'team1') {
 				g_game.ships[i].visible = true;
-				g_game.ships[i].image.show();
+				//g_game.ships[i].image.show();
 			}
 			else if (g_game.ships[i].orbitting && g_game.planets[g_game.ships[i].orbitting].visible) {
 				g_game.ships[i].visible = true;
-				g_game.ships[i].image.show();
+				//g_game.ships[i].image.show();
 			}
 			else if (!g_game.ships[i].orbitting && g_game.ships[i].destination && g_game.planets[g_game.ships[i].destination].visible) {
 				g_game.ships[i].visible = true;
-				g_game.ships[i].image.show();
+				//g_game.ships[i].image.show();
 			}
 			else {
 				g_game.ships[i].visible = false;
-				g_game.ships[i].image.hide();
+				//g_game.ships[i].image.hide();
 			}
 		}
 	}

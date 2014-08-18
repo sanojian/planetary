@@ -146,43 +146,43 @@ var g_defs = {
 					fighter: {
 						damage: 0.5,
 						hits: 2,
-						speed: 3,
+						speed: 1,
 						size: 5
 					},
 					bomber: {
 						damage: 0.2,
 						hits: 2,
-						speed: 2,
+						speed: 2/3,
 						size: 5
 					},
 					factory: {
 						damage: 0,
 						hits: 2,
-						speed: 1.5,
+						speed: .5,
 						size: 5
 					},
 					'dummy-factory': {
 						damage: 0,
 						hits: 2,
-						speed: 1.5,
+						speed: .5,
 						size: 5
 					},
 					gun: {
 						damage: 1.5,
 						hits: 2,
-						speed: 2,
+						speed: 2/3,
 						size: 8
 					},
 					laboratory: {
 						damage: 0,
 						hits: 2,
-						speed: 1.5,
+						speed: .5,
 						size: 5
 					},
 					satellite: {
 						damage: 1,
 						hits: 1.5,
-						speed: 1,
+						speed: 1/3,
 						size: 6
 					}
 				
