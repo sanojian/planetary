@@ -9,17 +9,29 @@ var g_spriteAtlas = {
 			"spriteSourceSize": {"x": 0,"y":0,"w":8,"h":8},
 			"sourceSize": {"w":8,"h":8}
 		}*/
-		"ship2":{
+		"planet0":{
 			"frame": {
 				"x": 0,
-				"y": 0,
-				"w": 64,
-				"h": 64
-			},
-			"rotated": false,
-			"trimmed": false,
-			"spriteSourceSize": {"x":0,"y":0,"w":64,"h":64},
-			"sourceSize": {"w":64,"h":64}
+				"y": 688,
+				"w": 40,
+				"h": 40
+			}
+		},
+		"planet1":{
+			"frame": {
+				"x": 40,
+				"y": 688,
+				"w": 40,
+				"h": 40
+			}
+		},
+		"factory":{
+			"frame": {
+				"x": 200,
+				"y": 600,
+				"w": 8,
+				"h": 8
+			}
 		},
 		"ship":{
 			"frame": {

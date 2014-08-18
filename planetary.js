@@ -10,8 +10,6 @@ var GameState = function(game) {
 
 // Load images and sounds
 GameState.prototype.preload = function() {
-	//this.game.load.spritesheet('spriteSheet', './images/lofi_scifi_v2_trans.png', 8, 8);
-
 	this.game.load.atlasJSONHash('allsprites', './images/lofi_scifi_v2_trans.png', null, g_spriteAtlas);
 
 };
@@ -19,13 +17,36 @@ GameState.prototype.preload = function() {
 // Setup the example
 GameState.prototype.create = function() {
 
-	//var ship = this.game.add.sprite(100, 100, 'spriteSheet', 2 + 272/8*256/8);
-	//var ship = this.game.add.sprite(100, 100, 'ship');
+	//var ship = this.game.add.sprite(100, 100, 'allsprites', 'ship');
 
-	//var frameData = this.game.cache.getFrameData('allsprites');
-	//var shipFrame = frameData.getFrameByName('ship');
+	//var planet0 = this.game.add.sprite(200, 200, 'allsprites', 'planet0');
 
-	var ship = this.game.add.sprite(100, 100, null, 'ship3');
+	//var planet1 = this.game.add.sprite(200, 300, 'allsprites', 'planet1');
+	
+	window.gfx = this.game.add.graphics(0, 0);
+	 
+	loadLevel();
+
+	window.gfx.lineStyle(1, 0xffffff);
+	
+	for (var key in g_game.planets) {
+		//g_game.planets[key].orbit;
+		window.gfx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
+	}
+
+	for (var key in g_game.routes) {
+		//g_game.planets[key].orbit;
+		window.gfx.moveTo(g_game.routes[key].pt1.x, g_game.routes[key].pt1.y);
+		window.gfx.lineTo(g_game.routes[key].pt2.x, g_game.routes[key].pt2.y);
+	}
+	
+	this.frame = 0;
+	
+};
+
+GameState.prototype.update = function() {
+
+	//doGameLoop(this.frame++);
 
 };
 
@@ -183,14 +204,14 @@ function clearLevel() {
 		}
 	}
 	
-	g_game.routeSelector.hide();
+	/*g_game.routeSelector.hide();
 	g_game.routeSelector.game.isActive = false;
 	g_game.gameMessage.hide();
 	if (g_game.tutorial_set) {
 		while (g_game.tutorial_set.length > 0) {
 			g_game.tutorial_set.pop().remove();
 		}
-	}
+	}*/
 	
 	g_game.ships = [];
 	g_game.planets = {};
@@ -216,7 +237,7 @@ function loadLevel() {
 	}
 	
 	// if new song or no current song
-	if (g_game.level.song1 || !g_game.music.song1) {
+	/*if (g_game.level.song1 || !g_game.music.song1) {
 		if (g_game.music.song1) {
 			g_game.music.song1.stop();
 		}
@@ -232,7 +253,7 @@ function loadLevel() {
 			autoplay: true,
 			loop: true
 		});
-	}
+	}*/
 	
 	for (var name in g_game.level.planets) {
 		g_game.planets[name] = new Planet(name, g_game.level.planets[name].x, g_game.level.planets[name].y, 
@@ -254,7 +275,7 @@ function loadLevel() {
 																				g_game.level.buildings[i].location, 
 																				g_game.level.buildings[i].team);
 	}
-	if (g_game.level.tutorial_image) {
+	/*if (g_game.level.tutorial_image) {
 		g_game.tutorial_set = g_game.raphPaper.set([
 			g_game.raphPaper.text(0, 0, g_game.level.tutorial_image.text).attr(g_defs.fontAttribs).attr( { 'font-size': 18 } ),
 			g_game.raphPaper.rect(g_game.level.tutorial_image.x, g_game.level.tutorial_image.y, g_game.level.tutorial_image.w, g_game.level.tutorial_image.h, 12)
@@ -280,7 +301,7 @@ function loadLevel() {
 
 	positionGameText();
 	
-	doGameLoop(0);
+	doGameLoop(0);*/
 	
 };
 
@@ -356,7 +377,7 @@ var Explosion = function(image) {
 	return this;
 };
 
-var drawResearch = function(type, r, color, offsetX, offsetY) {
+/*var drawResearch = function(type, r, color, offsetX, offsetY) {
 	var icon = g_game.raphPaper.set();
 	if (type == 'armour') {
 		icon.push(g_game.raphPaper.path(['M', offsetX-r, offsetY-r, 'L', offsetX+r, offsetY-r, 
@@ -383,7 +404,7 @@ var drawResearch = function(type, r, color, offsetX, offsetY) {
 	}
 	
 	return icon;
-}
+}*/
 
 function sector(cx, cy, radius, startAngle, endAngle) {
 	var rad = Math.PI / 180;
@@ -405,9 +426,9 @@ function getUpgrades() {
 }
 
 var drawShip = function(type, r, color, offsetX, offsetY, upgrades) {
-	var ship = g_game.raphPaper.set();
+	var ship = null;//g_game.raphPaper.set();
 	if (type == 'fighter') {
-		var points = [];
+		/*var points = [];
 		//if (upgrades && upgrades.engine) {
 			points.push([ [-r*1.5, -r/2], [r, 0], 	[-r*1.5, r/2] ]);
 		//}
@@ -419,16 +440,19 @@ var drawShip = function(type, r, color, offsetX, offsetY, upgrades) {
 			}
 			path += 'L' + (points[j][0][0] + offsetX) + ',' + (points[j][0][1] + offsetY);
 			ship.push(g_game.raphPaper.path(path).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
-		}
+		}*/
+		ship = g_game.add.sprite(offsetX, offsetY, 'allsprites', 'ship');
 	}
 	else if (type == 'bomber') {
-		ship.push(g_game.raphPaper.ellipse(offsetX-r, offsetY-r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		/*ship.push(g_game.raphPaper.ellipse(offsetX-r, offsetY-r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
 		ship.push(g_game.raphPaper.ellipse(offsetX-r, offsetY+r, r, r/2).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
-		ship.push(g_game.raphPaper.ellipse(offsetX, offsetY, 3*r/2, r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.ellipse(offsetX, offsetY, 3*r/2, r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));*/
+		ship = g_game.add.sprite(offsetX, offsetY, 'allsprites', 'ship');
 	}
 	else if (type == 'factory' || type == 'dummy-factory') {
-		ship.push(g_game.raphPaper.rect(offsetX - 2, offsetY - 10, 8, 14).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
-		ship.push(g_game.raphPaper.rect(offsetX - 8, offsetY - 4, 8, 8).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		/*ship.push(g_game.raphPaper.rect(offsetX - 2, offsetY - 10, 8, 14).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
+		ship.push(g_game.raphPaper.rect(offsetX - 8, offsetY - 4, 8, 8).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));*/
+		ship = g_game.add.sprite(offsetX, offsetY, 'allsprites', 'factory');
 	}
 	else if (type == 'gun') {
 		ship.push(g_game.raphPaper.circle(offsetX, offsetY, r).attr({ fill: color, stroke: '#ddd', 'stroke-width': 3 }));
@@ -516,8 +540,8 @@ var Building = function(myType, planetName, myTeam) {
 	var gunFireTime = 20;
 	self.damage = g_defs.shipStats[this.type].damage;
 	
-	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x, self.planet.y);
-	var bbox = self.image.getBBox();
+	self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[self.team].color, self.planet.x-4, self.planet.y-4);
+	/*var bbox = self.image.getBBox();
 	var glow = g_game.raphPaper.set();
 	for (var i=0;i<self.image.length;i++) {
 		glow.push(self.image[i].glow());
@@ -563,7 +587,7 @@ var Building = function(myType, planetName, myTeam) {
 	
 	self.redraw = function() {
 		self.image.attr({ 'stroke-width': self.hits });
-	};
+	};*/
 	
 	self.takeDamage = function(amt) {
 		self.hits -= amt;
@@ -574,7 +598,7 @@ var Building = function(myType, planetName, myTeam) {
 			self.redraw();
 	};
 	
-	self.redraw();
+	//self.redraw();
 	self.bAlive = true;
 	self.destroy = function(skipAnimate) {
 		if (g_game.shipSelector.game.factory == self) {
@@ -653,19 +677,29 @@ var Route = function(planetA, planetB) {
 	var p1 = g_game.planets[planetA];
 	var p2 = g_game.planets[planetB];
 	
-	var bigPath = g_game.raphPaper.path('M' + p1.x + ' ' + p1.y + 'L' + p2.x + ' ' + p2.y);
-	this.length = bigPath.getTotalLength();
-	this.path = g_game.raphPaper.path(bigPath.getSubpath(p1.r*2, this.length - p2.r*2)).attr( { stroke: '#222', 'stroke-width': 2 }).toBack();
-	this.length = this.path.getTotalLength();
-	this.image = this.path;
-	bigPath.remove();
+	//this.pt1 = new Phaser.Point(p1.x, p1.y);
+	//this.pt2 = new Phaser.Point(p2.x, p2.y);
+	this.exitAngle1 = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+	this.exitAngle2 = (this.exitAngle1 + Math.PI) % (Math.PI * 2);
+	this.pt1 = p1.orbit.circumferencePoint(this.exitAngle1);
+	this.pt2 = p2.orbit.circumferencePoint(this.exitAngle2);
 	
-	this.pt1 = this.path.getPointAtLength(0);
-	this.pt2 = this.path.getPointAtLength(this.length);
+	this.length = Math.abs(Phaser.Point.distance(this.pt1, this.pt2));
+	
+	//var bigPath = g_game.raphPaper.path('M' + p1.x + ' ' + p1.y + 'L' + p2.x + ' ' + p2.y);
+	//this.length = bigPath.getTotalLength();
+	//this.path = g_game.raphPaper.path(bigPath.getSubpath(p1.r*2, this.length - p2.r*2)).attr( { stroke: '#222', 'stroke-width': 2 }).toBack();
+	//this.length = this.path.getTotalLength();
+	//this.image = this.path;
+	//bigPath.remove();
+	
+	//this.pt1 = this.path.getPointAtLength(0);
+	//this.pt2 = this.path.getPointAtLength(this.length);
 	// find intersecting orbit lengths
-	var len = 0;
+	/*var len = 0;
 	while (!this.exitLength1) {
-		var orbitPoint = p1.orbit.getPointAtLength(len);
+		var orbitPoint = p1.orbit.circumferencePoint(len, true);	//p1.orbit.getPointAtLength(len);
+		console.log(orbitPoint);
 		if (Math.abs(this.pt1.x - orbitPoint.x) < 2 && Math.abs(this.pt1.y - orbitPoint.y) < 2) {
 			this.exitLength1 = len;
 		}
@@ -673,12 +707,12 @@ var Route = function(planetA, planetB) {
 	}
 	len = 0;
 	while (!this.exitLength2) {
-		var orbitPoint = p2.orbit.getPointAtLength(len);
+		var orbitPoint = p2.orbit.circumferencePoint(len, true);	//p2.orbit.getPointAtLength(len);
 		if (Math.abs(this.pt2.x - orbitPoint.x) < 2 && Math.abs(this.pt2.y - orbitPoint.y) < 2) {
 			this.exitLength2 = len;
 		}
 		len++;
-	}
+	}*/
 	
 	this.destroy = function() {
 		this.image.remove();
@@ -704,11 +738,15 @@ var Planet = function(name, myX, myY, myR, myColor) {
 	var color = myColor || 'rgb(' + (64 + Math.floor(Math.random() * 128)) + ',' + (64 + Math.floor(Math.random() * 128)) + ',' + (64 + Math.floor(Math.random() * 128)) + ')';
 	
 	
-	this.orbit = g_game.raphPaper.path(getCircleToPath(this.x, this.y, this.r*2)).attr( { stroke: '#222', 'stroke-width': 2 });
-	this.orbitLength = this.orbit.getTotalLength();
+	//this.orbit = g_game.raphPaper.path(getCircleToPath(this.x, this.y, this.r*2)).attr( { stroke: '#222', 'stroke-width': 2 });
+	//this.orbitLength = this.orbit.getTotalLength();
 
-	var imgPlanet = g_game.raphPaper.circle(myX, myY, myR).attr({ fill: color, 'stroke-width': 3 });
-	var cover = g_game.raphPaper.circle(this.x, this.y, this.r*2).attr( { fill: '#fff', opacity: 0 });
+	this.orbit = new Phaser.Circle(myX, myY, myR*2);
+	this.orbitLength = this.orbit.circumference();
+	
+	//var imgPlanet = g_game.raphPaper.circle(myX, myY, myR).attr({ fill: color, 'stroke-width': 3 });
+	var imgPlanet = g_game.add.sprite(myX-20, myY-20, 'allsprites', 'planet0');
+	/*var cover = g_game.raphPaper.circle(this.x, this.y, this.r*2).attr( { fill: '#fff', opacity: 0 });
 
 	cover.hover(
 		function() {
@@ -783,7 +821,7 @@ var Planet = function(name, myX, myY, myR, myColor) {
 			}
 			g_game.routeSelector.attr({ path: path });
 		}
-	);
+	);*/
 	
 	this.destroy = function() {
 		this.orbit.remove();
@@ -843,13 +881,14 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 	}
 	
 	self.redraw = function() {
-		if (!self.image)
-			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, 0, 0, upgrades);
+		if (!self.image) {
+			self.image = drawShip(self.type, g_defs.shipStats[myType].size, g_defs.teams[myTeam].color, locX, locY, upgrades);
+		}
 
-		self.image.attr({ 'stroke-width': self.hits });
+		/*self.image.attr({ 'stroke-width': self.hits });
 		if (!g_game.planets[self.orbitting].visible) {
 			self.image.hide();
-		}	
+		}*/	
 	};
 
 	self.redraw();
@@ -1160,7 +1199,7 @@ var doGameLoop = function(frames) {
 		}
 	}
 	
-	setTimeout(function() { doGameLoop(frames + 1); }, 50);
+	//setTimeout(function() { doGameLoop(frames + 1); }, 50);
 };
 
 function positionGameText() {
