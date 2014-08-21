@@ -24,27 +24,63 @@ GameState.prototype.create = function() {
 	//var planet1 = this.game.add.sprite(200, 300, 'allsprites', 'planet1');
 	
 	window.gfx = this.game.add.graphics(0, 0);
-	 
+	
+	window.bmd = this.game.add.bitmapData(640, 480);	
+    window.screenBmd = this.game.add.sprite(0, 0, window.bmd); 
 	loadLevel();
 
-	window.gfx.lineStyle(1, 0xffffff);
+	//window.gfx.lineStyle(1, 0xffffff);
 	
-	for (var key in g_game.planets) {
-		//g_game.planets[key].orbit;
-		window.gfx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
+	/*for (var key in g_game.planets) {
+		//window.gfx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
 	}
 
 	for (var key in g_game.routes) {
-		//g_game.planets[key].orbit;
 		window.gfx.moveTo(g_game.routes[key].pt1.x, g_game.routes[key].pt1.y);
 		window.gfx.lineTo(g_game.routes[key].pt2.x, g_game.routes[key].pt2.y);
-	}
+	}*/
 	
 	this.frame = 0;
 	
 };
 
 GameState.prototype.update = function() {
+
+	window.bmd.clear();
+	window.bmd.ctx.strokeStyle = "#ffffff";
+	for (var key in g_game.planets) {
+		//window.bmd.ctx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
+		window.bmd.ctx.lineWidth = 1;
+		window.bmd.ctx.beginPath();
+		window.bmd.ctx.arc(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2, 0, 2 * Math.PI, false);
+		window.bmd.ctx.stroke();
+		window.bmd.ctx.closePath();
+	}
+
+	for (var key in g_game.routes) {
+		window.bmd.ctx.beginPath();
+		window.bmd.ctx.moveTo(g_game.routes[key].pt1.x, g_game.routes[key].pt1.y);
+		window.bmd.ctx.lineTo(g_game.routes[key].pt2.x, g_game.routes[key].pt2.y);
+		window.bmd.ctx.lineWidth = 1;
+		window.bmd.ctx.stroke();
+		window.bmd.ctx.closePath();
+
+	}
+	if (g_game.teams.team1.routePoints.length) {
+		window.bmd.ctx.strokeStyle = "#00ff00";
+		window.bmd.ctx.lineWidth = 3;
+		window.bmd.ctx.beginPath();
+		window.bmd.ctx.moveTo(g_game.planets[g_game.teams.team1.routePoints[0]].x, g_game.planets[g_game.teams.team1.routePoints[0]].y);
+		
+		for (var i=1;i<g_game.teams.team1.routePoints.length;i++) {
+			window.bmd.ctx.lineTo(g_game.planets[g_game.teams.team1.routePoints[i]].x, g_game.planets[g_game.teams.team1.routePoints[i]].y);
+		}
+		window.bmd.ctx.stroke();
+		window.bmd.ctx.closePath();
+	}
+		
+	window.bmd.render();
+	window.bmd.refreshBuffer();
 
 	doGameLoop(this.frame++);
 
@@ -750,12 +786,18 @@ var Planet = function(name, myX, myY, myR, myColor) {
 	imgPlanet.anchor.set(0.5);
 	imgPlanet.inputEnabled = true;
 	imgPlanet.events.onInputDown.add(function() {
+		g_game.bRouting = true;
 		g_game.teams.team1.routePoints = [name];
 
 	}, this);
+	imgPlanet.events.onInputOver.add(function() {
+		if (g_game.bRouting && g_game.teams.team1.routePoints[g_game.teams.team1.routePoints.length-1] != name) {
+			g_game.teams.team1.routePoints.push(name);
+			console.log(g_game.teams.team1.routePoints);
+		}
+	}, this);
 	imgPlanet.events.onInputUp.add(function() {
-		g_game.teams.team1.routePoints.push(name);
-		console.log(g_game.teams.team1.routePoints);
+		g_game.bRouting = false;
 	}, this);
 	
 	/*var cover = g_game.raphPaper.circle(this.x, this.y, this.r*2).attr( { fill: '#fff', opacity: 0 });
