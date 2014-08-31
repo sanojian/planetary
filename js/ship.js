@@ -58,14 +58,15 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 
 	self.destroy = function(skipAnimate) {
 		if (self.visible && !skipAnimate) {
-			g_game.explosions.push(new Explosion(self.image));
+			//g_game.explosions.push(new Explosion(self.image));
 		}
 		if (self.orbitting) {
 			g_game.planets[self.orbitting].removeOrbitter(this);
 		}
 		var idx = g_game.ships.indexOf(this);
 		g_game.ships.splice(idx, 1);
-		self.image.remove();
+		self.image.destroy();
+		self.image.destroy();
 		if (g_game.buildings[self.home])
 			g_game.buildings[self.home].numShips -= 1;
 	}
@@ -96,7 +97,6 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 				// find a route
 				var route = g_game.routes[self.orbitting + '_' + self.destination] || g_game.routes[self.destination + '_' + self.orbitting];
 				if (route) {
-					//var pt = Raphael.pathIntersection(route.path, g_game.planets[self.orbitting].orbit);
 					if (route.startPlanet == self.orbitting) {
 						self.exitLength = route.exitLength1;
 						self.enterLength = route.exitLength2;
@@ -118,9 +118,10 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			var otherShip = g_game.planets[self.orbitting].orbittingShips[i];
 			if (otherShip.team != self.team) {
 				if (self.visible) {
-					var shot = g_game.raphPaper.path('M' + self.x + ' ' + self.y + 'L' + otherShip.x + ' ' + otherShip.y).attr({ stroke: '#ff5555' });
-					g_game.sounds.laser.play();
-					setTimeout(function() { shot.remove(); }, 100);
+					//var shot = g_game.raphPaper.path('M' + self.x + ' ' + self.y + 'L' + otherShip.x + ' ' + otherShip.y).attr({ stroke: '#ff5555' });
+					//g_game.sounds.laser.play();
+					//setTimeout(function() { shot.remove(); }, 100);
+					g_game.shots.push({ type: 'fighter', frames: 6, startX: self.x, startY: self.y, endX: otherShip.x, endY: otherShip.y});
 				}
 
 				if (Math.random() > 0.5)	// needs accuracy
@@ -141,10 +142,11 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 		}
 		if (self.orbitting) {
 			if ((self.type == 'laboratory' || self.type == 'gun' || self.type == 'factory') && !g_game.buildings[self.orbitting]) {
-				// I am orbitting an empty planet, build a factory!
+				// I am orbiting an empty planet, build a factory!
 				g_game.buildings[self.orbitting] = new Building(self.type, self.orbitting, self.team);
 				return self.destroy();
 			}
+
 			orbitDistanceTravelled = (orbitDistanceTravelled + self.speed) % g_game.planets[self.orbitting].orbitLength;
 			var pt = findPointAtLength(g_game.planets[self.orbitting].x, g_game.planets[self.orbitting].y, g_game.planets[self.orbitting].r, orbitDistanceTravelled, false);//g_game.planets[self.orbitting].orbit.getPointAtLength(orbitDistanceTravelled);
 			self.x = pt.x;
@@ -161,9 +163,9 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 					var building = g_game.buildings[g_game.planets[self.orbitting].name];
 					if (building && building.team != self.team) {
 						if (self.visible) {
-							var shot = g_game.raphPaper.path('M' + self.x + ' ' + self.y + 'L' + g_game.planets[this.orbitting].x + ' ' + g_game.planets[this.orbitting].y).attr({ stroke: '#ffffff', 'stroke-width': 3 });
-							setTimeout(function() { shot.remove(); }, 100);
-							g_game.sounds.bomber.play();
+							//var shot = g_game.raphPaper.path('M' + self.x + ' ' + self.y + 'L' + g_game.planets[this.orbitting].x + ' ' + g_game.planets[this.orbitting].y).attr({ stroke: '#ffffff', 'stroke-width': 3 });
+							//setTimeout(function() { shot.remove(); }, 100);
+							//g_game.sounds.bomber.play();
 						}
 						building.takeDamage(this.damage);
 					}
@@ -196,7 +198,10 @@ var Ship = function(myType, myTeam, locX, locY, r, start) {
 			//for (var i=0;i<self.image.length;i++) {
 			//var bbox = self.image[self.image.length-1].getBBox();
 			//self.image.transform('r' + (angle * 180 / Math.PI) + ',' + (bbox.x + bbox.w/2) + ',' + (bbox.y + bbox.h/2));
-			self.image.transform('t' + self.x + ',' + self.y);
+			//self.image.transform('t' + self.x + ',' + self.y);
+			self.image.x = self.x;
+			self.image.y = self.y;
+
 			//}
 
 		}

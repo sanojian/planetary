@@ -24,23 +24,22 @@ var Route = function(planetA, planetB) {
 	//this.pt1 = this.path.getPointAtLength(0);
 	//this.pt2 = this.path.getPointAtLength(this.length);
 	// find intersecting orbit lengths
-	/*var len = 0;
-	 while (!this.exitLength1) {
-	 var orbitPoint = p1.orbit.circumferencePoint(len, true);	//p1.orbit.getPointAtLength(len);
-	 console.log(orbitPoint);
-	 if (Math.abs(this.pt1.x - orbitPoint.x) < 2 && Math.abs(this.pt1.y - orbitPoint.y) < 2) {
-	 this.exitLength1 = len;
-	 }
-	 len++;
-	 }
-	 len = 0;
-	 while (!this.exitLength2) {
-	 var orbitPoint = p2.orbit.circumferencePoint(len, true);	//p2.orbit.getPointAtLength(len);
-	 if (Math.abs(this.pt2.x - orbitPoint.x) < 2 && Math.abs(this.pt2.y - orbitPoint.y) < 2) {
-	 this.exitLength2 = len;
-	 }
-	 len++;
-	 }*/
+	var len = 0;
+	while (!this.exitLength1) {
+		var orbitPoint = p1.orbit.circumferencePoint(len, true);	//p1.orbit.getPointAtLength(len);
+		if (Math.abs(this.pt1.x - orbitPoint.x) < 2 && Math.abs(this.pt1.y - orbitPoint.y) < 2) {
+			this.exitLength1 = len;
+		}
+		len++;
+	}
+	len = 0;
+	while (!this.exitLength2) {
+		var orbitPoint = p2.orbit.circumferencePoint(len, true);	//p2.orbit.getPointAtLength(len);
+		if (Math.abs(this.pt2.x - orbitPoint.x) < 2 && Math.abs(this.pt2.y - orbitPoint.y) < 2) {
+			this.exitLength2 = len;
+		}
+		len++;
+    }
 
 	this.destroy = function() {
 		this.image.remove();

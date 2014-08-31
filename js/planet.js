@@ -28,6 +28,11 @@ var Planet = function(name, myX, myY, myR, myColor) {
 		if (g_game.bRouting && g_game.teams.team1.routePoints[g_game.teams.team1.routePoints.length-1] != name) {
 			g_game.teams.team1.routePoints.push(name);
 			console.log(g_game.teams.team1.routePoints);
+			for (var i=0;i<g_game.ships.length;i++) {
+				if (g_game.ships[i].team == 'team1')
+					g_game.ships[i].setDestination();
+			}
+
 		}
 	}, this);
 	imgPlanet.events.onInputUp.add(function() {

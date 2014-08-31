@@ -29,7 +29,7 @@ var g_levels = {
 		},
 		routes: [ 'A_B' ],
 		players: [
-			{ team: 'team1', location: 'A' },
+			{ team: 'team1', location: 'A' }
 		],
 		ships: [
 			{ team: 'team2', type: 'fighter', location: 'B' }
@@ -90,13 +90,13 @@ var g_levels = {
 					'B': { name: 'B', x: 200, y: 300, r: 24, color: '#009966' },
 					'C': { name: 'C', x: 500, y: 400, r: 28, color: '#ff9999' },
 					'D': { name: 'D', x: 700, y: 400, r: 22, color: '#960596' },
-					'E': { name: 'E', x: 800, y: 300, r: 23, color: '#4598DD' },
+					'E': { name: 'E', x: 800, y: 300, r: 23, color: '#4598DD' }
 		},
 		routes: [ 'A_B', 'B_C', 'C_D', 'D_E' ],
 		players: [
 			{ team: 'team1', location: 'D' },
 			{ team: 'team2', location: 'A' },
-			{ team: 'team3', location: 'C' },
+			{ team: 'team3', location: 'C' }
 		],
 		ships: [],
 		buildings: [],
@@ -114,7 +114,7 @@ var g_levels = {
 					'D': { name: 'D', x: 700, y: 400, r: 22, color: '#960596' },
 					'E': { name: 'E', x: 800, y: 300, r: 23, color: '#4598DD' },
 					'F': { name: 'F', x: 400, y: 600, r: 30, color: '#9845DD' },
-					'G': { name: 'G', x: 600, y: 200, r: 24, color: '#989233' },
+					'G': { name: 'G', x: 600, y: 200, r: 24, color: '#989233' }
 		},
 		routes: [ 'A_B', 'B_C', 'C_D', 'D_E', 'C_F', 'C_G' ],
 		players: [
@@ -146,31 +146,31 @@ var g_defs = {
 					fighter: {
 						damage: 0.5,
 						hits: 2,
-						speed: 1,
+						speed: 1/2,
 						size: 5
 					},
 					bomber: {
 						damage: 0.2,
 						hits: 2,
-						speed: 2/3,
+						speed: 1/3,
 						size: 5
 					},
 					factory: {
 						damage: 0,
 						hits: 2,
-						speed: .5,
+						speed: 1/4,
 						size: 5
 					},
 					'dummy-factory': {
 						damage: 0,
 						hits: 2,
-						speed: .5,
+						speed: 1/4,
 						size: 5
 					},
 					gun: {
 						damage: 1.5,
 						hits: 2,
-						speed: 2/3,
+						speed: 1/3,
 						size: 8
 					},
 					laboratory: {

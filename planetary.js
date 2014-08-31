@@ -17,29 +17,16 @@ GameState.prototype.preload = function() {
 // Setup the example
 GameState.prototype.create = function() {
 
-	//var ship = this.game.add.sprite(100, 100, 'allsprites', 'ship');
-
-	//var planet0 = this.game.add.sprite(200, 200, 'allsprites', 'planet0');
-
-	//var planet1 = this.game.add.sprite(200, 300, 'allsprites', 'planet1');
-	
 	window.gfx = this.game.add.graphics(0, 0);
 	
 	window.bmd = this.game.add.bitmapData(640, 480);	
-    window.screenBmd = this.game.add.sprite(0, 0, window.bmd); 
+    window.screenBmd = this.game.add.sprite(0, 0, window.bmd);
+	window.shotBmd = this.game.add.bitmapData(640, 480);
+	window.shotScreenBmd = this.game.add.sprite(0, 0, window.shotBmd);
 	loadLevel();
 
-	//window.gfx.lineStyle(1, 0xffffff);
-	
-	/*for (var key in g_game.planets) {
-		//window.gfx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
-	}
+	window.shotScreenBmd.bringToTop();
 
-	for (var key in g_game.routes) {
-		window.gfx.moveTo(g_game.routes[key].pt1.x, g_game.routes[key].pt1.y);
-		window.gfx.lineTo(g_game.routes[key].pt2.x, g_game.routes[key].pt2.y);
-	}*/
-	
 	this.frame = 0;
 	
 };
@@ -47,6 +34,7 @@ GameState.prototype.create = function() {
 GameState.prototype.update = function() {
 
 	window.bmd.clear();
+	window.shotBmd.clear();
 	window.bmd.ctx.strokeStyle = "#ffffff";
 	for (var key in g_game.planets) {
 		//window.bmd.ctx.drawCircle(g_game.planets[key].orbit.x, g_game.planets[key].orbit.y, g_game.planets[key].orbit.diameter/2);
@@ -65,6 +53,30 @@ GameState.prototype.update = function() {
 		window.bmd.ctx.stroke();
 		window.bmd.ctx.closePath();
 
+	}
+	for (var i=g_game.shots.length-1;i>=0;i--) {
+		if (g_game.shots[i].type == 'fighter') {
+			window.shotBmd.ctx.strokeStyle = "#ff0000";
+			window.shotBmd.ctx.lineWidth = 1;
+		}
+		else if (g_game.shots[i].type == 'bomber') {
+			window.shotBmd.ctx.strokeStyle = "#ffaaaa";
+			window.shotBmd.ctx.lineWidth = 1;
+		}
+		else if (g_game.shots[i].type == 'bomb') {
+			window.shotBmd.ctx.strokeStyle = "#0000ff";
+			window.shotBmd.ctx.lineWidth = 3;
+		}
+		window.shotBmd.ctx.beginPath();
+		window.shotBmd.ctx.moveTo(g_game.shots[i].startX, g_game.shots[i].startY);
+		window.shotBmd.ctx.lineTo(g_game.shots[i].endX, g_game.shots[i].endY);
+		window.shotBmd.ctx.stroke();
+		window.shotBmd.ctx.closePath();
+		g_game.shots[i].frames--;
+		if (g_game.shots[i].frames <= 0) {
+			g_game.shots.pop();
+			i--;
+		}
 	}
 	if (g_game.teams.team1.routePoints.length) {
 		window.bmd.ctx.strokeStyle = "#00ff00";
@@ -250,6 +262,7 @@ function clearLevel() {
 	}*/
 	
 	g_game.ships = [];
+	g_game.shots = [];
 	g_game.planets = {};
 	g_game.routes = {};
 	g_game.buildings = {};
